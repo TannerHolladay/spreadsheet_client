@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "jUbEezqxSDbmMOIWY7YPnzHMZMcpB3/lirRBm5cIfoS5dSxjoD7NgO2H9jNq9MVq8ud+hf8QpK2uRWrrxu2N4w==",
+  "success": true,
+  "projectFilePath": "D:\\projects\\Spreadsheet\\Formula\\Formula.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Tanne\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\Tanne\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

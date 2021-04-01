@@ -65,7 +65,7 @@ namespace SpreadSheetGUI
             _helpBox = new HelpBox();
 
             // Auto loads the spreadsheet from the save file if spreadsheet is set to auto-load. Doesn't load if an error occurs
-            if (AutoLoad) TryLoadSpreadsheet(_recentSaves.Last(), out _);
+            if (AutoLoad && _recentSaves.Count > 0) TryLoadSpreadsheet(_recentSaves.Last(), out _);
 
             AcceptButton = ButtonUpdate;
             LabelError.Visible = false;

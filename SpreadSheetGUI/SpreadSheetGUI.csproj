@@ -89,6 +89,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Control\Control.csproj">
+      <Project>{babdacf5-8dbf-4336-80da-b5ef738a8e90}</Project>
+      <Name>Control</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Formula\Formula.csproj">
       <Project>{1A1FC81D-2C08-46C6-B120-1F1AC3198B71}</Project>
       <Name>Formula</Name>

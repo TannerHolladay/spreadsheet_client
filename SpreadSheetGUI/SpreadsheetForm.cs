@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
+using Control;
 using SpreadsheetUtilities;
 using SS;
 
@@ -32,6 +33,8 @@ namespace SpreadSheetGUI
         private int _col;
         private int _row;
         private string _currentFile;
+
+        private Controller clientController;
         private string CurrentFile
         {
             get => _currentFile;
@@ -405,6 +408,30 @@ namespace SpreadSheetGUI
             return true;
         }
 
+
         #endregion
+
+        private void Connect_Button_Click(object sender, EventArgs e)
+        {
+            //TODO CHECK FOR IF EMPTY
+            String username = Username_TextBox.Text;
+            if (String.IsNullOrWhiteSpace(username))
+            {
+                Warning("Error: Please enter a username", "Empty Username Error", WarningType.Error);
+            }
+
+            String addr = IPAddress_TextBox.Text;
+            if (String.IsNullOrWhiteSpace(addr))
+            {
+                Warning("Error: Please enter an IP Address", "Empty IP Address Error", WarningType.Error);
+            }
+
+
+            clientController = new Controller(username);
+
+            clientController.Connect(addr);
+
+
+        }
     }
 }

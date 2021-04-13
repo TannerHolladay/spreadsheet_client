@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.IO;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace NetworkController
 {
@@ -25,15 +28,27 @@ namespace NetworkController
                 // Send data to TCP server.
                 stream.Write(data, 0, data.Length);
 
-                // Store response in byte array
-                data = new Byte[512];
+                StringBuilder receivedData = new StringBuilder();
+                // Receive all spreadsheet names from server 
+                while (true)
+                {
+                    // Store response in byte array
+                    data = new Byte[512];
 
-                String receivedData = null;
+                    int receivedBytes = stream.Read(data, 0, data.Length);
+                    // Convert received bytes into string 
+                    receivedData.Append(System.Text.Encoding.UTF8.GetString(data, 0, receivedBytes));
 
-                int receivedBytes = stream.Read(data, 0, data.Length);
-                // Convert received bytes into string 
-                receivedData = System.Text.Encoding.UTF8.GetString(data, 0, receivedBytes);
-                Console.WriteLine("This is the received data: ", receivedData);
+                    //Check if received two new line characters.
+                    if (Regex.IsMatch(receivedData.ToString(), "^[\n][\n]$"))
+                    {
+                        break;
+                    }
+                    Console.WriteLine("This is the received data: ", receivedData);
+                }
+
+                string[] spreadsheetNames = null;
+                spreadsheetNames = receivedData.ToString().Split('\n');
 
             }
             catch (SocketException e)

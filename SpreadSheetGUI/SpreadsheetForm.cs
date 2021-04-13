@@ -428,10 +428,15 @@ namespace SpreadSheetGUI
 
 
             clientController = new Controller(username);
+            // Assigning Listner
+            clientController.getSpreadsheets += displaySpreadsheets;
 
             clientController.Connect(addr);
 
+        }
 
+        private void displaySpreadsheets(string[] spreadsheetNames)
+        {
         }
     }
 }

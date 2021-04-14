@@ -13,7 +13,7 @@ namespace Server
             TcpListener server = null;
             try
             {
-                int port = 10016;
+                int port = 1100;
                 // Local host ip address
                 IPAddress serverAddress = IPAddress.Parse("127.0.0.1");
                 server = new TcpListener(serverAddress, port);
@@ -43,12 +43,28 @@ namespace Server
                         data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
                         Console.WriteLine("Received: {0}", data);
 
-                        data = data.ToUpper();
 
-                        byte[] message = System.Text.Encoding.ASCII.GetBytes(data);
 
                         //Send response
-                        stream.Write(message, 0, message.Length);
+                        if (data.Equals("Dude\n"))
+                        {
+                            //Sends list of spreadsheet names with new line after each name.
+                            //When last spreadsheet name is sent, sends an additional newline.
+                            data = "abc\nSpreadsheetName\nxyz\n\n";
+
+                        }
+                        else if (data.Equals("SpreadsheetName\n"))
+                        {
+                            //Sends spreadsheet data
+                            data = "SendsSpreadsheetData";
+                        }
+
+                        //Encoding message into bytes
+                        byte[] response = System.Text.Encoding.ASCII.GetBytes(data);
+
+
+
+                        stream.Write(response, 0, response.Length);
                         Console.WriteLine("Sent: {0}", data);
                     }
                     // End connection

@@ -26,7 +26,9 @@ namespace SpreadSheetGUI
         }
 
         private static HelpBox _helpBox;
+        private static SpreadsheetList _spreadsheetList;
         private static List<string> _recentSaves;
+
 
         private Spreadsheet _spreadsheet;
         private string _selection;
@@ -79,6 +81,14 @@ namespace SpreadSheetGUI
             spreadsheetPanel.SelectionChanged += OnSelectionChanged;
 
             CellSelectionChange(spreadsheetPanel);
+
+            // Construct Controller
+            clientController = new Controller();
+            // Assigning Listner
+            clientController.getSpreadsheets += DisplaySpreadsheets;
+        
+            _spreadsheetList = new SpreadsheetList();
+            _spreadsheetList.ssName += SendSpreadsheetName;
         }
 
         /// <summary>
@@ -413,7 +423,6 @@ namespace SpreadSheetGUI
 
         private void Connect_Button_Click(object sender, EventArgs e)
         {
-            //TODO CHECK FOR IF EMPTY
             String username = Username_TextBox.Text;
             if (String.IsNullOrWhiteSpace(username))
             {
@@ -425,13 +434,30 @@ namespace SpreadSheetGUI
             {
                 Warning("Error: Please enter an IP Address", "Empty IP Address Error", WarningType.Error);
             }
+            clientController.Connect(username, addr);
+        }
 
 
-            clientController = new Controller(username);
+        /// <summary>
+        /// Called when spreadsheet names are received from server.
+        /// Displays spreadsheet names on a textbox. 
+        /// </summary>
+        /// <param name="spreadsheetNames"></param>
+        private void DisplaySpreadsheets(string[] spreadsheetNames)
+        {
+            _spreadsheetList.SetSpreadsheetNames(spreadsheetNames);
+            _spreadsheetList.ShowDialog();
+        }
 
-            clientController.Connect(addr);
-
-
+        /// <summary>
+        /// Listner
+        /// When selected name in textbox is selected and sent, 
+        /// Sends server selected spreadsheet name. 
+        /// </summary>
+        /// <param name="spreadsheenName"></param>
+        private void SendSpreadsheetName(string spreadsheenName)
+        {
+            clientController.SendSelectedSpreadsheet(spreadsheenName);
         }
     }
 }

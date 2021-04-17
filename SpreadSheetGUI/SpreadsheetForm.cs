@@ -266,7 +266,13 @@ namespace SpreadSheetGUI
             EditCell c = new EditCell();
             c.setCellName(_selection);
             c.setContents(BoxContents.Text);
-            clientController.SendEditToServer(c);
+            if(clientController.HasID())
+                clientController.SendEditToServer(c);
+            else
+            {
+                LabelError.Text = "ID was not recieved try again";
+                LabelError.Visible = true;
+            }
 
         }
 

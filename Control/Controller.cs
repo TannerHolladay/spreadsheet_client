@@ -24,6 +24,7 @@ namespace Control
         String username;
         public Controller()
         {
+            ID = -1;
         }
 
         public void Connect(string name, String ipAddr)
@@ -131,5 +132,9 @@ namespace Control
             Networking.Send(serverConnection.TheSocket, message + "\n");
         }
 
+        public bool HasID()
+        {
+            return ID != -1;
+        }
     }
 }

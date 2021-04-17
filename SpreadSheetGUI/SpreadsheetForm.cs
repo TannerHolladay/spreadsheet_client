@@ -10,6 +10,7 @@ using System.Xml;
 using Control;
 using SpreadsheetUtilities;
 using SS;
+using SSJson;
 
 namespace SpreadSheetGUI
 {
@@ -84,11 +85,26 @@ namespace SpreadSheetGUI
 
             // Construct Controller
             clientController = new Controller();
-            // Assigning Listner
-            clientController.getSpreadsheets += DisplaySpreadsheets;
-        
-            _spreadsheetList = new SpreadsheetList();
-            _spreadsheetList.ssName += SendSpreadsheetName;
+            // Assigning Listener
+            clientController.getSpreadsheets += GetSpreadsheetName;
+            clientController.editCell += OnlineCellEdited;
+        }
+
+        private void OnlineCellEdited(CellUpdated c)
+        {
+            try
+            {
+                var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
+                foreach (var cell in updated)
+                {
+                    UpdateCell(cell);
+                }
+            }
+            catch (Exception exception)
+            {
+                LabelError.Text = exception.Message;
+                LabelError.Visible = true;
+            }
         }
 
         /// <summary>
@@ -233,20 +249,25 @@ namespace SpreadSheetGUI
         /// </summary>
         private void UpdateSelectedCell()
         {
-            try
-            {
-                var updated = _spreadsheet.SetContentsOfCell(_selection, BoxContents.Text);
-                foreach (var cell in updated)
-                {
-                    UpdateCell(cell);
-                }
-                OnSelectionChanged(spreadsheetPanel);
-            }
-            catch (Exception exception)
-            {
-                LabelError.Text = exception.Message;
-                LabelError.Visible = true;
-            }
+            //try
+            //{
+            //    var updated = _spreadsheet.SetContentsOfCell(_selection, BoxContents.Text);
+            //    foreach (var cell in updated)
+            //    {
+            //        UpdateCell(cell);
+            //    }
+            //    OnSelectionChanged(spreadsheetPanel);
+            //}
+            //catch (Exception exception)
+            //{
+            //    LabelError.Text = exception.Message;
+            //    LabelError.Visible = true;
+            //}
+            EditCell c = new EditCell();
+            c.setCellName(_selection);
+            c.setContents(BoxContents.Text);
+            clientController.SendEditToServer(c);
+
         }
 
         /// <summary>
@@ -263,7 +284,7 @@ namespace SpreadSheetGUI
             else
                 BoxValue.Clear();
 
-            _selection = $"{(char) ('A' + _col)}{_row + 1}";
+            _selection = $"{(char)('A' + _col)}{_row + 1}";
             ButtonUpdate.Text = $@"Update: {_selection}";
             BoxSelected.Text = _selection;
 
@@ -443,21 +464,21 @@ namespace SpreadSheetGUI
         /// Displays spreadsheet names on a textbox. 
         /// </summary>
         /// <param name="spreadsheetNames"></param>
-        private void DisplaySpreadsheets(string[] spreadsheetNames)
+        private string GetSpreadsheetName(string[] spreadsheetNames)
         {
+            _spreadsheetList = new SpreadsheetList();
+
             _spreadsheetList.SetSpreadsheetNames(spreadsheetNames);
             _spreadsheetList.ShowDialog();
-        }
 
-        /// <summary>
-        /// Listner
-        /// When selected name in textbox is selected and sent, 
-        /// Sends server selected spreadsheet name. 
-        /// </summary>
-        /// <param name="spreadsheenName"></param>
-        private void SendSpreadsheetName(string spreadsheenName)
-        {
-            clientController.SendSelectedSpreadsheet(spreadsheenName);
+            string userEnteredText = _spreadsheetList.sspreadSheetName;
+            
+
+            _spreadsheetList.Dispose();
+
+            return userEnteredText;
+
         }
     }
+
 }

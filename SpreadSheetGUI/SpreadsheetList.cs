@@ -14,9 +14,7 @@ namespace SpreadSheetGUI
     {
         private string[] spreadsheetNames;
 
-        public delegate void gotSelectedSpreadsheet (string name);
-        public event gotSelectedSpreadsheet ssName;
-
+        public string sspreadSheetName = "";
         public SpreadsheetList()
         {
             InitializeComponent();
@@ -36,10 +34,11 @@ namespace SpreadSheetGUI
             SelectedNameTextBox.Text = NamesListBox.SelectedItem.ToString();
         }
 
-        private void SendNameButton_Click(object sender, EventArgs e)
+       private void SendNameButton_Click(object sender, EventArgs e)
         {
-            // Send the name to server
-            ssName(SelectedNameTextBox.Text);
+            sspreadSheetName = SelectedNameTextBox.Text;
+            this.Close();
+        
         }
     }
 }

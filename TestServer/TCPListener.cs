@@ -55,8 +55,9 @@ namespace Server
                         }
                         else if (data.Equals("SpreadsheetName\n"))
                         {
+                            
                             //Sends spreadsheet data
-                            data = "SendsSpreadsheetData";
+                            data = "{ messageType: \"cellUpdated\" , cellName: \"A1\", contents: \"=1 + 2\" }\n";
                         }
 
                         //Encoding message into bytes

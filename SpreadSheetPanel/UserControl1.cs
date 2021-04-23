@@ -161,6 +161,18 @@ namespace SS
             drawingPanel.GetSelection(out col, out row);
         }
 
+        /// <summary>
+        /// Adds or updates online users' selections
+        /// </summary>
+        /// <param name="col">column of selection</param>
+        /// <param name="row">row of selection</param>
+        /// <param name="id">id of user</param>
+        /// <param name="name">username of user</param>
+        public void UpdateOnlineSelection(int col, int row, int id, string name)
+        {
+            drawingPanel.setOnlineSelection(col, row, id, name);
+        }
+
 
         /// <summary>
         /// When the SpreadsheetPanel is resized, we set the size and locations of the three
@@ -231,6 +243,8 @@ namespace SS
             private int _selectedCol;
             private int _selectedRow;
 
+            private Dictionary<int, Tuple<int, int, string>> selections = new Dictionary<int, Tuple<int, int, string>>();
+
             // Coordinate of cell in upper-left corner of display
             private int _firstColumn = 0;
             private int _firstRow = 0;
@@ -283,6 +297,18 @@ namespace SS
                 return true;
             }
 
+            /// <summary>
+            /// Adds selection to the Dictionary
+            /// </summary>
+            /// <param name="col"></param>
+            /// <param name="row"></param>
+            /// <param name="id"></param>
+            /// <param name="name"></param>
+            public void setOnlineSelection(int col, int row, int id, string name)
+            {
+                Tuple<int, int, string> t = new Tuple<int, int, string>(col, row, name);
+                selections.Add(id, t);
+            }
 
             public bool GetValue(int col, int row, out string c)
             {
@@ -400,6 +426,24 @@ namespace SS
                                       DATA_ROW_HEIGHT - 2));
                 }
 
+                //Paints each selection
+                foreach (var client in selections)
+                {
+                    //checks if it is in view
+                    if ((client.Value.Item1 - _firstColumn >= 0) && (client.Value.Item2 - _firstRow >= 0))
+                    {
+                        //gets the next color of brush
+                        Brush b = nextColorBrush(client.Key);
+                        Pen p = new Pen(b);
+                        e.Graphics.DrawRectangle(
+                            pen,
+                            new Rectangle(LABEL_COL_WIDTH + (client.Value.Item1 - _firstColumn) * DATA_COL_WIDTH + 1,
+                                          LABEL_ROW_HEIGHT + (client.Value.Item2 - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                          DATA_COL_WIDTH - 2,
+                                          DATA_ROW_HEIGHT - 2));
+                    } 
+                }
+
                 // Draw the text
                 foreach (KeyValuePair<Address, String> address in _values)
                 {
@@ -428,6 +472,58 @@ namespace SS
 
             }
 
+            private Brush nextColorBrush(int id)
+            {
+                int color = id % 8;
+                Brush b = new SolidBrush(Color.Black);
+                switch(id)
+                {
+                    case 0:
+                        {
+                            b = new SolidBrush(Color.Blue);
+                            break;
+                        }
+                    case 1:
+                        {
+                            b = new SolidBrush(Color.Red);
+                            break;
+                        }
+                    case 2:
+                        {
+                            b = new SolidBrush(Color.Green);
+                            break;
+                        }
+                    case 3:
+                        {
+                            b = new SolidBrush(Color.Yellow);
+                            break;
+                        }
+                    case 4:
+                        {
+                            b = new SolidBrush(Color.HotPink);
+                            break;
+                        }
+                    case 5:
+                        {
+                            b = new SolidBrush(Color.Aqua);
+                            break;
+
+                        }
+                    case 6:
+                        {
+                            b = new SolidBrush(Color.Beige);
+                            break;
+                        }
+                    case 7:
+                        {
+                            b = new SolidBrush(Color.Cyan);
+                            break;
+                        }
+
+                }
+
+                return b;
+            }
 
             /// <summary>
             /// Draws a column label.  The columns are indexed beginning with zero.

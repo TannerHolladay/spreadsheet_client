@@ -90,6 +90,18 @@ namespace SpreadSheetGUI
             clientController.editCell += OnlineCellEdited;
         }
 
+        /// <summary>
+        /// Updates current online selections or adds a new one if not found
+        /// </summary>
+        /// <param name="c"></param>
+        public void setNewCellselection(CellSelected c)
+        {
+            var col = Regex.Match(c.getCellName(), @"^[A-Z]").Value[0] - 'A';
+            var row = int.Parse(Regex.Match(c.getCellName(), @"\d*$").Value);
+
+            spreadsheetPanel.UpdateOnlineSelection(col, row, c.getClientID(), c.getClientName());
+        }
+
         private void OnlineCellEdited(CellUpdated c)
         {
             try
@@ -496,6 +508,9 @@ namespace SpreadSheetGUI
             r.setCellName(_selection);
             clientController.SendUpdatesToServer(r);
         }
+
+        
+
     }
 
 }

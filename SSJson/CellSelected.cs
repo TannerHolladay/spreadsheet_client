@@ -4,7 +4,29 @@ using System.Text;
 
 namespace SSJson
 {
-    class CellSelected
+    public class CellSelected
     {
+        private string cellName;
+
+        private int clientID;
+
+        private string clientName;
+
+        public string getCellName()
+        {
+            return cellName;
+        }
+
+        public int getClientID()
+        {
+            return clientID;
+        }
+
+        public string getClientName()
+        {
+            return clientName;
+        }
+
+
     }
 }

@@ -60,6 +60,8 @@ namespace SpreadSheetGUI
             this.IPAddress_TextBox = new System.Windows.Forms.TextBox();
             this.Usernam_Label = new System.Windows.Forms.Label();
             this.IPAddress_Label = new System.Windows.Forms.Label();
+            this.UndoButton = new System.Windows.Forms.Button();
+            this.RevertButton = new System.Windows.Forms.Button();
             this.ContextMenuStrip1.SuspendLayout();
             this.MenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -88,7 +90,7 @@ namespace SpreadSheetGUI
             // 
             this.BoxValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.BoxValue.Cursor = System.Windows.Forms.Cursors.Default;
-            this.BoxValue.Location = new System.Drawing.Point(336, 1109);
+            this.BoxValue.Location = new System.Drawing.Point(336, 1228);
             this.BoxValue.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.BoxValue.Name = "BoxValue";
             this.BoxValue.ReadOnly = true;
@@ -101,7 +103,7 @@ namespace SpreadSheetGUI
             this.LabelSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LabelSelected.AutoSize = true;
             this.LabelSelected.BackColor = System.Drawing.Color.Transparent;
-            this.LabelSelected.Location = new System.Drawing.Point(21, 1113);
+            this.LabelSelected.Location = new System.Drawing.Point(21, 1232);
             this.LabelSelected.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.LabelSelected.Name = "LabelSelected";
             this.LabelSelected.Size = new System.Drawing.Size(115, 29);
@@ -116,11 +118,11 @@ namespace SpreadSheetGUI
             this.LabelError.Enabled = false;
             this.LabelError.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LabelError.ForeColor = System.Drawing.Color.Firebrick;
-            this.LabelError.Location = new System.Drawing.Point(800, 1109);
+            this.LabelError.Location = new System.Drawing.Point(800, 1228);
             this.LabelError.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.LabelError.Name = "LabelError";
             this.LabelError.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.LabelError.Size = new System.Drawing.Size(1024, 40);
+            this.LabelError.Size = new System.Drawing.Size(1246, 40);
             this.LabelError.TabIndex = 5;
             this.LabelError.Text = "Error Message";
             this.LabelError.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -157,7 +159,7 @@ namespace SpreadSheetGUI
             this.MenuStrip1.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip1.Name = "MenuStrip1";
             this.MenuStrip1.Padding = new System.Windows.Forms.Padding(9, 4, 0, 4);
-            this.MenuStrip1.Size = new System.Drawing.Size(1846, 49);
+            this.MenuStrip1.Size = new System.Drawing.Size(2068, 49);
             this.MenuStrip1.TabIndex = 6;
             this.MenuStrip1.Text = "menuStrip1";
             // 
@@ -264,7 +266,7 @@ namespace SpreadSheetGUI
             this.spreadsheetPanel.Location = new System.Drawing.Point(21, 129);
             this.spreadsheetPanel.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.spreadsheetPanel.Name = "spreadsheetPanel";
-            this.spreadsheetPanel.Size = new System.Drawing.Size(1804, 957);
+            this.spreadsheetPanel.Size = new System.Drawing.Size(2026, 1076);
             this.spreadsheetPanel.TabIndex = 0;
             // 
             // LabelValue
@@ -272,7 +274,7 @@ namespace SpreadSheetGUI
             this.LabelValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LabelValue.AutoSize = true;
             this.LabelValue.BackColor = System.Drawing.Color.Transparent;
-            this.LabelValue.Location = new System.Drawing.Point(245, 1113);
+            this.LabelValue.Location = new System.Drawing.Point(245, 1232);
             this.LabelValue.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.LabelValue.Name = "LabelValue";
             this.LabelValue.Size = new System.Drawing.Size(80, 29);
@@ -284,7 +286,7 @@ namespace SpreadSheetGUI
             // 
             this.BoxSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.BoxSelected.Cursor = System.Windows.Forms.Cursors.Default;
-            this.BoxSelected.Location = new System.Drawing.Point(142, 1109);
+            this.BoxSelected.Location = new System.Drawing.Point(142, 1228);
             this.BoxSelected.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.BoxSelected.Name = "BoxSelected";
             this.BoxSelected.ReadOnly = true;
@@ -295,10 +297,10 @@ namespace SpreadSheetGUI
             // 
             // Connect_Button
             // 
-            this.Connect_Button.Location = new System.Drawing.Point(758, 58);
-            this.Connect_Button.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Connect_Button.Location = new System.Drawing.Point(730, 58);
+            this.Connect_Button.Margin = new System.Windows.Forms.Padding(2);
             this.Connect_Button.Name = "Connect_Button";
-            this.Connect_Button.Size = new System.Drawing.Size(126, 54);
+            this.Connect_Button.Size = new System.Drawing.Size(154, 54);
             this.Connect_Button.TabIndex = 9;
             this.Connect_Button.Text = "Connect";
             this.Connect_Button.UseVisualStyleBackColor = true;
@@ -307,7 +309,7 @@ namespace SpreadSheetGUI
             // Username_TextBox
             // 
             this.Username_TextBox.Location = new System.Drawing.Point(1045, 76);
-            this.Username_TextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Username_TextBox.Margin = new System.Windows.Forms.Padding(2);
             this.Username_TextBox.Name = "Username_TextBox";
             this.Username_TextBox.Size = new System.Drawing.Size(149, 35);
             this.Username_TextBox.TabIndex = 10;
@@ -316,7 +318,7 @@ namespace SpreadSheetGUI
             // IPAddress_TextBox
             // 
             this.IPAddress_TextBox.Location = new System.Drawing.Point(1356, 78);
-            this.IPAddress_TextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.IPAddress_TextBox.Margin = new System.Windows.Forms.Padding(2);
             this.IPAddress_TextBox.Name = "IPAddress_TextBox";
             this.IPAddress_TextBox.Size = new System.Drawing.Size(163, 35);
             this.IPAddress_TextBox.TabIndex = 11;
@@ -342,11 +344,33 @@ namespace SpreadSheetGUI
             this.IPAddress_Label.TabIndex = 13;
             this.IPAddress_Label.Text = "Ip Address:";
             // 
+            // UndoButton
+            // 
+            this.UndoButton.Location = new System.Drawing.Point(1564, 59);
+            this.UndoButton.Name = "UndoButton";
+            this.UndoButton.Size = new System.Drawing.Size(168, 54);
+            this.UndoButton.TabIndex = 14;
+            this.UndoButton.Text = "Undo";
+            this.UndoButton.UseVisualStyleBackColor = true;
+            this.UndoButton.Click += new System.EventHandler(this.UndoButton_Click);
+            // 
+            // RevertButton
+            // 
+            this.RevertButton.Location = new System.Drawing.Point(1809, 59);
+            this.RevertButton.Name = "RevertButton";
+            this.RevertButton.Size = new System.Drawing.Size(182, 59);
+            this.RevertButton.TabIndex = 15;
+            this.RevertButton.Text = "Revert";
+            this.RevertButton.UseVisualStyleBackColor = true;
+            this.RevertButton.Click += new System.EventHandler(this.RevertButton_Click);
+            // 
             // SpreadsheetForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(14F, 29F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1846, 1162);
+            this.ClientSize = new System.Drawing.Size(2068, 1281);
+            this.Controls.Add(this.RevertButton);
+            this.Controls.Add(this.UndoButton);
             this.Controls.Add(this.IPAddress_Label);
             this.Controls.Add(this.Usernam_Label);
             this.Controls.Add(this.IPAddress_TextBox);
@@ -407,6 +431,8 @@ namespace SpreadSheetGUI
         private TextBox IPAddress_TextBox;
         private Label Usernam_Label;
         private Label IPAddress_Label;
+        private Button UndoButton;
+        private Button RevertButton;
     }
 }
 

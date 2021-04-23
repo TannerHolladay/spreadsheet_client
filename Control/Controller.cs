@@ -100,17 +100,6 @@ namespace Control
 
                 }
 
-                //Check if its selection or edit
-                //if(true)
-                // {
-                //if cell updated
-                // }
-                // else if(true)
-                //{
-                //if cell selection
-                //  }
-
-
                 state.RemoveData(0, message.Length);
 
                
@@ -120,15 +109,9 @@ namespace Control
 
         }
 
-        public void SendEditToServer(EditCell c)
+        public void SendUpdatesToServer(object o)
         {
-            string message = JsonConvert.SerializeObject(c);
-            Networking.Send(serverConnection.TheSocket, message + "\n");
-        }
-
-        public void SendSelectionToServer(SelectCell c)
-        {
-            string message = JsonConvert.SerializeObject(c);
+            string message = JsonConvert.SerializeObject(o);
             Networking.Send(serverConnection.TheSocket, message + "\n");
         }
 

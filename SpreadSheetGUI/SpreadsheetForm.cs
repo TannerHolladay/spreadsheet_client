@@ -249,25 +249,12 @@ namespace SpreadSheetGUI
         /// </summary>
         private void UpdateSelectedCell()
         {
-            //try
-            //{
-            //    var updated = _spreadsheet.SetContentsOfCell(_selection, BoxContents.Text);
-            //    foreach (var cell in updated)
-            //    {
-            //        UpdateCell(cell);
-            //    }
-            //    OnSelectionChanged(spreadsheetPanel);
-            //}
-            //catch (Exception exception)
-            //{
-            //    LabelError.Text = exception.Message;
-            //    LabelError.Visible = true;
-            //}
             EditCell c = new EditCell();
             c.setCellName(_selection);
             c.setContents(BoxContents.Text);
-            if(clientController.HasID())
-                clientController.SendEditToServer(c);
+
+            if (clientController.HasID())
+                clientController.SendUpdatesToServer(c);
             else
             {
                 LabelError.Text = "ID was not recieved try again";
@@ -450,18 +437,29 @@ namespace SpreadSheetGUI
 
         private void Connect_Button_Click(object sender, EventArgs e)
         {
+            bool hasNameIP = true;
             String username = Username_TextBox.Text;
             if (String.IsNullOrWhiteSpace(username))
             {
-                Warning("Error: Please enter a username", "Empty Username Error", WarningType.Error);
+                hasNameIP = !Warning("Error: Please enter a username", "Empty Username Error", WarningType.Error);
             }
 
             String addr = IPAddress_TextBox.Text;
             if (String.IsNullOrWhiteSpace(addr))
             {
-                Warning("Error: Please enter an IP Address", "Empty IP Address Error", WarningType.Error);
+                hasNameIP = !Warning("Error: Please enter an IP Address", "Empty IP Address Error", WarningType.Error);
             }
-            clientController.Connect(username, addr);
+
+            //Checks if IP and Username is entered
+            if(hasNameIP)
+            {
+                Connect_Button.Enabled = false;
+                IPAddress_TextBox.Enabled = false;
+                Username_TextBox.Enabled = false;
+                clientController.Connect(username, addr);
+            }
+
+            
         }
 
 
@@ -484,6 +482,19 @@ namespace SpreadSheetGUI
 
             return userEnteredText;
 
+        }
+
+        private void UndoButton_Click(object sender, EventArgs e)
+        {
+            UndoCell u = new UndoCell();
+            clientController.SendUpdatesToServer(u);
+        }
+
+        private void RevertButton_Click(object sender, EventArgs e)
+        {
+            RevertCell r = new RevertCell();
+            r.setCellName(_selection);
+            clientController.SendUpdatesToServer(r);
         }
     }
 

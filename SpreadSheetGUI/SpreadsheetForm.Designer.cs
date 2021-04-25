@@ -304,7 +304,6 @@ namespace SpreadSheetGUI
             this.Connect_Button.TabIndex = 9;
             this.Connect_Button.Text = "Connect";
             this.Connect_Button.UseVisualStyleBackColor = true;
-            this.Connect_Button.Click += new System.EventHandler(this.Connect_Button_Click);
             // 
             // Username_TextBox
             // 

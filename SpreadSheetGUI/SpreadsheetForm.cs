@@ -27,7 +27,6 @@ namespace SpreadSheetGUI
         }
 
         private static HelpBox _helpBox;
-        private static SpreadsheetList _spreadsheetList;
         private static List<string> _recentSaves;
 
 
@@ -62,11 +61,12 @@ namespace SpreadSheetGUI
         /// Spreadsheet form that allows you to enter input. You can enter formulas by
         /// using "=" before the formula ex. (=2+A1)
         /// </summary>
-        public SpreadsheetForm()
+        public SpreadsheetForm(Controller controller, string spreadsheetName)
         {
             InitializeComponent();
             LoadRecentSaves();
 
+            Text = spreadsheetName;
             _spreadsheet = new Spreadsheet(IsValid, Normalize, "ps6");
             _helpBox = new HelpBox();
 
@@ -83,11 +83,8 @@ namespace SpreadSheetGUI
 
             CellSelectionChange(spreadsheetPanel);
 
-            // Construct Controller
-            clientController = new Controller();
-            // Assigning Listener
-            clientController.getSpreadsheets += GetSpreadsheetName;
-            clientController.editCell += OnlineCellEdited;
+            clientController = controller;
+            clientController.EditCell += OnlineCellEdited;
         }
 
         private void OnlineCellEdited(CellUpdated c)
@@ -124,7 +121,7 @@ namespace SpreadSheetGUI
         }
 
         // Enum Types for the different warning choices
-        private enum WarningType
+        public enum WarningType
         { Error, Question, Warning }
 
         /// <summary>
@@ -134,7 +131,7 @@ namespace SpreadSheetGUI
         /// <param name="title">The title at the top of the dialog</param>
         /// <param name="type">What type of dialog to show</param>
         /// <returns>True if the user selects Yes or Ok</returns>
-        private static bool Warning(string message, string title, WarningType type)
+        public static bool Warning(string message, string title, WarningType type)
         {
             MessageBoxButtons buttons;
             MessageBoxIcon icon;
@@ -448,43 +445,6 @@ namespace SpreadSheetGUI
 
         #endregion
 
-        private void Connect_Button_Click(object sender, EventArgs e)
-        {
-            String username = Username_TextBox.Text;
-            if (String.IsNullOrWhiteSpace(username))
-            {
-                Warning("Error: Please enter a username", "Empty Username Error", WarningType.Error);
-            }
-
-            String addr = IPAddress_TextBox.Text;
-            if (String.IsNullOrWhiteSpace(addr))
-            {
-                Warning("Error: Please enter an IP Address", "Empty IP Address Error", WarningType.Error);
-            }
-            clientController.Connect(username, addr);
-        }
-
-
-        /// <summary>
-        /// Called when spreadsheet names are received from server.
-        /// Displays spreadsheet names on a textbox. 
-        /// </summary>
-        /// <param name="spreadsheetNames"></param>
-        private string GetSpreadsheetName(string[] spreadsheetNames)
-        {
-            _spreadsheetList = new SpreadsheetList();
-
-            _spreadsheetList.SetSpreadsheetNames(spreadsheetNames);
-            _spreadsheetList.ShowDialog();
-
-            string userEnteredText = _spreadsheetList.sspreadSheetName;
-            
-
-            _spreadsheetList.Dispose();
-
-            return userEnteredText;
-
-        }
     }
 
 }

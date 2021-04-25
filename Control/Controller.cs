@@ -1,38 +1,43 @@
 ﻿
+using System;
+using System.Linq;
 using NetworkUtil;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SSJson;
-using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Control
 {
     public class Controller
     {
-        public delegate string receivedSpreadsheets(string[] spreadsheetNames);
-        public event receivedSpreadsheets getSpreadsheets;
+        private const int Port = 1100;
+        public event Action<string[]> GetSpreadsheets;
+        public event Action<CellUpdated> EditCell;
+        public event Action<string, string> Error;
+        public event Action Connected;
+        public event Action Disconnected;
+        public event Action<string> JoinSpreadsheet;
+        private SocketState _server;
+        private int _id;
 
-        public delegate void cellUpdated(CellUpdated c);
-        public event cellUpdated editCell;
-
-        SocketState serverConnection;
-
-        private int ID;
-
-        String username;
+        private string _username;
+        
         public Controller()
         {
-            ID = -1;
+            _id = -1;
         }
 
-        public void Connect(string name, String ipAddr)
+        public void Connect(string name, string serverIP)
         {
-            username = name;
-            String addr = ipAddr;
-            int port = 1100;
-            Networking.ConnectToServer(OnConnect, addr, port);
+            _username = name;
+            Networking.ConnectToServer(OnConnect, serverIP, Port);
+        }
+        
+        public void Disconnect()
+        {
+            _server = null;
+            Disconnected?.Invoke();
         }
 
         /// <summary>
@@ -41,32 +46,51 @@ namespace Control
         /// <param name="socket"></param>
         private void OnConnect(SocketState socket)
         {
-            serverConnection = socket;
-            Networking.Send(socket.TheSocket, username + "\n");
-            socket.OnNetworkAction = ReceiveAndSendSpreadsheets;
+            if (socket.ErrorOccured)
+            {
+                // inform the view
+                Error?.Invoke(socket.ErrorMessage, "Error Connecting To The Server");
+                return;
+            }
+            
+            Connected?.Invoke();
+            
+            _server = socket;
+            Networking.Send(socket.TheSocket, _username + "\n");
+            socket.OnNetworkAction = ReceiveSpreadsheets;
             Networking.GetData(socket);
         }
 
         /// <summary>
         /// Called when server sends all spreadsheet names.
         /// </summary>
-        /// <param name="obj"></param>
-        private void ReceiveAndSendSpreadsheets(SocketState state)
+        /// <param name="state"></param>
+        private void ReceiveSpreadsheets(SocketState state)
         {
-            string[] spreadSheetNames = state.GetData().Split('\n');
-            string name = getSpreadsheets(spreadSheetNames);
-            state.ClearData();
+            string data = state.GetData();
+            if (!data.EndsWith("\n\n"))
+            {
+                Networking.GetData(state);
+                return;
+            }
+            string[] spreadSheetNames = data.Substring(0, data.Length-2).Split('\n');
+            GetSpreadsheets?.Invoke(spreadSheetNames.Where(sheet => !string.IsNullOrEmpty(sheet)).ToArray());
+        }
 
-            state.OnNetworkAction = ReceiveUpdatesLoop;
-            Networking.Send(state.TheSocket, name + "\n");
+        public void SendSpreadsheetRequest(string spreadsheet)
+        {
+            _server.ClearData();
 
-            Networking.GetData(serverConnection);
+            Networking.Send(_server.TheSocket, $"{spreadsheet}\n");
+            _server.OnNetworkAction = ReceiveUpdatesLoop;
+
+            Networking.GetData(_server);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="state"></param>
         private void ReceiveUpdatesLoop(SocketState state)
         {
             //TODO: Implement editing loop. Check 1.4 Entering the Editing and Updating Loop pg. 4
@@ -82,22 +106,24 @@ namespace Control
                 //Last Step of handshake if message is the id
                 //SHOULD WE MAKE A SEPARATE LOOP FOR HANDSHAKE THEN USAGE????
                 if (int.TryParse(message, out int i))
-                    ID = i;
+                    _id = i;
 
                 // The regex splitter will include the last string even if it doesn't end with a '\n',
                 // So we need to ignore it if this happens. 
                 if (message[message.Length - 1] != '\n')
                     break;
 
-                JObject x =JObject.Parse(message);
-                if(((string)x["messageType"]).Equals("cellUpdated"))
+                JObject x = JObject.Parse(message);
+                switch (x["messageType"]?.ToString())
                 {
-                    CellUpdated c = JsonConvert.DeserializeObject<CellUpdated>(message);
-                    editCell(c);
-                }
-                else if(((string)x["messageType"]).Equals("cellSelected"))
-                {
-
+                    case "cellUpdated":
+                    {
+                        CellUpdated c = JsonConvert.DeserializeObject<CellUpdated>(message);
+                        EditCell?.Invoke(c);
+                        break;
+                    }
+                    case "cellSelected":
+                        break;
                 }
 
                 state.RemoveData(0, message.Length);
@@ -112,12 +138,12 @@ namespace Control
         public void SendUpdatesToServer(object o)
         {
             string message = JsonConvert.SerializeObject(o);
-            Networking.Send(serverConnection.TheSocket, message + "\n");
+            Networking.Send(_server.TheSocket, message + "\n");
         }
 
         public bool HasID()
         {
-            return ID != -1;
+            return _id != -1;
         }
     }
 }

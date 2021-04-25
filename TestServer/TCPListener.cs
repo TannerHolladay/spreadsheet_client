@@ -1,8 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 
 namespace Server
 {
@@ -13,25 +11,21 @@ namespace Server
             TcpListener server = null;
             try
             {
-                int port = 1100;
+                const int port = 1100;
                 // Local host ip address
                 IPAddress serverAddress = IPAddress.Parse("127.0.0.1");
                 server = new TcpListener(serverAddress, port);
                 server.Start();
 
                 // Buffer reading data
-                Byte[] bytes = new byte[256];
-                String data = null;
+                var bytes = new byte[256];
 
                 while (true)
                 {
                     Console.WriteLine("Waiting for a connection... ");
                     TcpClient client = server.AcceptTcpClient();
                     Console.WriteLine("Connected");
-
-                    // Reset data to null
-                    data = null;
-
+                    
                     NetworkStream stream = client.GetStream();
 
                     int i;
@@ -40,24 +34,22 @@ namespace Server
                     while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
                         // Translate read bytes into ASCII
-                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                        string data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
                         Console.WriteLine("Received: {0}", data);
 
 
-
-                        //Send response
-                        if (data.Equals("Dude\n"))
+                        switch (data)
                         {
-                            //Sends list of spreadsheet names with new line after each name.
-                            //When last spreadsheet name is sent, sends an additional newline.
-                            data = "abc\nSpreadsheetName\nxyz\n\n";
-
-                        }
-                        else if (data.Equals("SpreadsheetName\n"))
-                        {
-                            
-                            //Sends spreadsheet data
-                            data = "{ messageType: \"cellUpdated\" , cellName: \"A1\", contents: \"=1 + 2\" }\n";
+                            //Send response
+                            case "Dude\n":
+                                //Sends list of spreadsheet names with new line after each name.
+                                //When last spreadsheet name is sent, sends an additional newline.
+                                data = "abc\nSpreadsheetName\nxyz\n\n";
+                                break;
+                            case "SpreadsheetName\n":
+                                //Sends spreadsheet data
+                                data = "{ messageType: \"cellUpdated\" , cellName: \"A1\", contents: \"=1 + 2\" }\n";
+                                break;
                         }
 
                         //Encoding message into bytes
@@ -78,7 +70,7 @@ namespace Server
             }
             finally
             {
-                server.Stop();
+                server?.Stop();
             }
         }
     }

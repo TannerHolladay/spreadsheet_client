@@ -14,6 +14,9 @@ namespace Control
         private const int Port = 1100;
         public event Action<string[]> GetSpreadsheets;
         public event Action<CellUpdated> EditCell;
+        public event Action<CellSelected> SelectCell;
+        public event Action<ServerShutdownError> ServerShutdown;
+        public event Action<RequestError> RequestError;
         public event Action<string, string> Error;
         public event Action Connected;
         public event Action Disconnected;
@@ -118,12 +121,28 @@ namespace Control
                 {
                     case "cellUpdated":
                     {
-                        CellUpdated c = JsonConvert.DeserializeObject<CellUpdated>(message);
-                        EditCell?.Invoke(c);
+                        CellUpdated updated = JsonConvert.DeserializeObject<CellUpdated>(message);
+                        EditCell?.Invoke(updated);
                         break;
                     }
                     case "cellSelected":
+                    {
+                        CellSelected selected = JsonConvert.DeserializeObject<CellSelected>(message);
+                        SelectCell?.Invoke(selected);
                         break;
+                    }
+                    case "serverError":
+                    {
+                        ServerShutdownError error = JsonConvert.DeserializeObject<ServerShutdownError>(message);
+                        ServerShutdown.Invoke(error);
+                        break;
+                    }
+                    case "requestError":
+                    {
+                        RequestError error = JsonConvert.DeserializeObject<RequestError>(message);
+                        RequestError.Invoke(error);
+                        break;
+                    }
                 }
 
                 state.RemoveData(0, message.Length);

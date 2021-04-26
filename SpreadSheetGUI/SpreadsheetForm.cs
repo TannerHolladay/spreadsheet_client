@@ -66,10 +66,16 @@ namespace SpreadSheetGUI
             InitializeComponent();
             LoadRecentSaves();
 
-            Text = spreadsheetName;
+
             _spreadsheet = new Spreadsheet(IsValid, Normalize, "ps6");
             _helpBox = new HelpBox();
+            Text = spreadsheetName;
+            clientController = controller;
 
+            clientController.EditCell += OnlineCellEdited;
+            clientController.SelectCell += OnNewCellSelection;
+            clientController.ServerShutdown += OnServerShutdown;
+            clientController.RequestError += OnRequestError;
             // Auto loads the spreadsheet from the save file if spreadsheet is set to auto-load. Doesn't load if an error occurs
             if (AutoLoad && _recentSaves.Count > 0) TryLoadSpreadsheet(_recentSaves.Last(), out _);
 
@@ -83,20 +89,18 @@ namespace SpreadSheetGUI
 
             CellSelectionChange(spreadsheetPanel);
 
-            clientController = controller;
-            clientController.EditCell += OnlineCellEdited;
         }
 
         /// <summary>
         /// Updates current online selections or adds a new one if not found
         /// </summary>
         /// <param name="c"></param>
-        public void setNewCellselection(CellSelected c)
+        public void OnNewCellSelection(CellSelected selected)
         {
-            var col = Regex.Match(c.getCellName(), @"^[A-Z]").Value[0] - 'A';
-            var row = int.Parse(Regex.Match(c.getCellName(), @"\d*$").Value);
+            var col = Regex.Match(selected.getCellName(), @"^[A-Z]").Value[0] - 'A';
+            var row = int.Parse(Regex.Match(selected.getCellName(), @"\d*$").Value);
 
-            spreadsheetPanel.UpdateOnlineSelection(col, row, c.getClientID(), c.getClientName());
+            spreadsheetPanel.UpdateOnlineSelection(col, row, selected.getClientID(), selected.getClientName());
         }
 
         private void OnlineCellEdited(CellUpdated c)
@@ -108,12 +112,23 @@ namespace SpreadSheetGUI
                 {
                     UpdateCell(cell);
                 }
+                CellSelectionChange(spreadsheetPanel);
             }
             catch (Exception exception)
             {
                 LabelError.Text = exception.Message;
                 LabelError.Visible = true;
             }
+        }
+
+        private void OnServerShutdown(ServerShutdownError error)
+        {
+            Warning(error.getMessage(), "Server Shutdown", WarningType.Error);
+        }
+
+        private void OnRequestError(RequestError error)
+        {
+            Warning(error.getMessage() + "\nCell: " + error.getCellName(), "Invalid Request", WarningType.Error);
         }
 
         /// <summary>
@@ -253,17 +268,18 @@ namespace SpreadSheetGUI
             }
         }
 
+
         /// <summary>
         /// Updates the selected cell on the spreadsheet
         /// </summary>
-        private void UpdateSelectedCell()
+        private void EditSelectedCell()
         {
-            EditCell c = new EditCell();
-            c.setCellName(_selection);
-            c.setContents(BoxContents.Text);
+            EditCell edit = new EditCell();
+            edit.setCellName(_selection);
+            edit.setContents(BoxContents.Text);
 
             if (clientController.HasID())
-                clientController.SendUpdatesToServer(c);
+                clientController.SendUpdatesToServer(edit);
             else
             {
                 LabelError.Text = "ID was not recieved try again";
@@ -300,7 +316,17 @@ namespace SpreadSheetGUI
             {
                 LabelError.Visible = true;
                 LabelError.Text = e.Message;
+                return;
             }
+
+            // This should send the update to the server (do we need to do this in the try block?)
+            SelectCell selected = new SelectCell();
+            selected.setCellName(_selection);
+
+            // Tell the server that this client selected a new cell.
+            // Client ID not needed prior to selecting a cell (not mentioned in protocol document) < - Double check this
+
+            clientController.SendUpdatesToServer(selected);
         }
 
         /// <summary>
@@ -423,8 +449,8 @@ namespace SpreadSheetGUI
         #region Controller Events
 
         private void CloseWarning(object sender, FormClosingEventArgs eventArgs) => eventArgs.Cancel = FormCloseWarning(); // Event thrown from the form trying to be closed
-        private void OnSelectionChanged(SpreadsheetPanel ssp) => CellSelectionChange(ssp); // Event thrown when changing cell in the spreadsheet
-        private void ButtonUpdate_Click(object sender, EventArgs e) => UpdateSelectedCell(); // Event thrown selecting the update button to update the selected cell
+        private void OnSelectionChanged(SpreadsheetPanel ssp) => CellSelectionChange(ssp); // Event thrown when selecting a cell in the spreadsheet
+        private void ButtonUpdate_Click(object sender, EventArgs e) => EditSelectedCell(); // Event thrown selecting the update button to update the selected cell
         private void LoadToolStripMenuItem_Click(object sender, EventArgs e) => OpenFileDialog.ShowDialog(); // Event thrown from clicking on the load menu item in File
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e) => SaveFileDialog.ShowDialog(); // Event thrown from clicking on the save menu item in File
         private void SaveFileDialog_FileOk(object sender, CancelEventArgs e) => e.Cancel = SaveSpreadsheet(SaveFileDialog.FileName); // Event thrown when choosing a file to save to

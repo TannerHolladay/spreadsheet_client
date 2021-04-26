@@ -6,23 +6,23 @@ using System.Text;
 namespace SSJson
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class SelectCell
+    public class RequestError
     {
-        [JsonProperty(PropertyName = "requestType")]
-        private string requestType;
-
         [JsonProperty(PropertyName = "cellName")]
         private string cellName;
 
-        public SelectCell()
+        [JsonProperty(PropertyName = "message")]
+        private string message;
+
+        public string getCellName()
         {
-            requestType = "selectCell";
-            cellName = "";
+            return cellName;
         }
 
-        public void setCellName(string name)
+        public string getMessage()
         {
-            cellName = name;
+            return message;
         }
+
     }
 }

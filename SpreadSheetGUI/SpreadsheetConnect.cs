@@ -16,26 +16,42 @@ namespace SpreadSheetGUI
             InitializeComponent();
 
             _clientController = new Controller();
-
+            _clientController.Connected += Connected;
+            _clientController.Error += Error;
+            _clientController.Disconnected += Disconnected;
             _clientController.GetSpreadsheets += SetSpreadsheetNames;
-            _clientController.Error += (message, title) =>
-            {
-                SpreadsheetForm.Warning(message, title, SpreadsheetForm.WarningType.Error);
-            };
-            _clientController.Connected += () =>
+            Username.TextChanged += Connection_TextChanged;
+            IpAddress.TextChanged += Connection_TextChanged;
+        }
+        private void Connected()
+        {
+            Invoke(new MethodInvoker(
+            () =>
             {
                 _currentName = Username.Text;
                 _currentIP = IpAddress.Text;
                 ButtonConnect.Enabled = false;
-            };
-            _clientController.Disconnected += () =>
+            }));
+        }
+
+        private void Error(string message, string title)
+        {
+            Invoke(new MethodInvoker(
+            () =>
+            {
+                SpreadsheetForm.Warning(message, title, SpreadsheetForm.WarningType.Error);
+            }));
+        }
+
+        private void Disconnected()
+        {
+            Invoke(new MethodInvoker(
+            () =>
             {
                 _currentName = null;
                 _currentIP = null;
                 ButtonConnect.Enabled = true;
-            };
-            Username.TextChanged += Connection_TextChanged;
-            IpAddress.TextChanged += Connection_TextChanged;
+            }));
         }
 
         /// <summary>
@@ -45,19 +61,23 @@ namespace SpreadSheetGUI
         /// <param name="spreadsheetNames"></param>
         public void SetSpreadsheetNames(string[] spreadsheetNames)
         {
-            SpreadsheetList.Items.Clear();
-            if (spreadsheetNames.Length > 0)
+            Invoke(new MethodInvoker(
+            () =>
             {
-                foreach (string sheet in spreadsheetNames)
+                SpreadsheetList.Items.Clear();
+                if (spreadsheetNames.Length > 0)
                 {
-                    SpreadsheetList.Items.Add(sheet);
+                    foreach (string sheet in spreadsheetNames)
+                    {
+                        SpreadsheetList.Items.Add(sheet);
+                    }
                 }
-            }
-            else
-            {
-                SpreadsheetList.Enabled = false;
-                SpreadsheetList.Items.Add("No spreadsheets have been created. Please create a new one.");
-            }
+                else
+                {
+                    SpreadsheetList.Enabled = false;
+                    SpreadsheetList.Items.Add("No spreadsheets have been created. Please create a new one.");
+                }
+            }));
         }
 
         private void ButtonConnect_Click(object sender, EventArgs e)

@@ -307,7 +307,13 @@ namespace SS
             public void setOnlineSelection(int col, int row, int id, string name)
             {
                 Tuple<int, int, string> t = new Tuple<int, int, string>(col, row, name);
-                selections.Add(id, t);
+
+                if(!selections.ContainsKey(id))
+                    selections.Add(id, t);
+                else
+                {
+                    selections[id] = t;
+                }
             }
 
             public bool GetValue(int col, int row, out string c)

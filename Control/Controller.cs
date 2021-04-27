@@ -105,17 +105,22 @@ namespace Control
                 //ignore empty strings
                 if (message.Length == 0)
                     continue;
-
+                
                 //Last Step of handshake if message is the id
                 //SHOULD WE MAKE A SEPARATE LOOP FOR HANDSHAKE THEN USAGE????
                 if (int.TryParse(message, out int i))
+                {
                     _id = i;
+                    continue;
+                }
 
                 // The regex splitter will include the last string even if it doesn't end with a '\n',
-                // So we need to ignore it if this happens. 
-                if (message[message.Length - 1] != '\n')
-                    break;
-
+                // So we need to ignore it if this happens.
+                if (message.Last() != '\n' || message[0] != '{')
+                    continue;
+                
+                Console.WriteLine(message);
+                
                 JObject x = JObject.Parse(message);
                 switch (x["messageType"]?.ToString())
                 {

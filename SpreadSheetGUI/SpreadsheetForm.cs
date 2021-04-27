@@ -303,6 +303,10 @@ namespace SpreadSheetGUI
             edit.setCellName(_selection);
             edit.setContents(BoxContents.Text);
 
+            SelectCell selected = new SelectCell();
+            selected.setCellName(_selection);
+
+            clientController.SendUpdatesToServer(selected);
             clientController.SendUpdatesToServer(edit);
         }
 

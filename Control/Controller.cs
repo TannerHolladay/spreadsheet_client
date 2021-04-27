@@ -21,6 +21,7 @@ namespace Control
         public event Action Connected;
         public event Action Disconnected;
         public event Action<string> JoinSpreadsheet;
+        public event Action<int> IDRecieved;
         private SocketState _server;
         private int _id;
 
@@ -111,6 +112,7 @@ namespace Control
                 if (int.TryParse(message, out int i))
                 {
                     _id = i;
+                    IDRecieved?.Invoke(_id);
                     continue;
                 }
 

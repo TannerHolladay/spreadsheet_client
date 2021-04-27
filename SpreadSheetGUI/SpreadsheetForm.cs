@@ -82,6 +82,7 @@ namespace SpreadSheetGUI
             clientController.SelectCell += OnNewCellSelection;
             clientController.ServerShutdown += OnServerShutdown;
             clientController.RequestError += OnRequestError;
+            clientController.IDRecieved += OnIDRecieve;
             // Auto loads the spreadsheet from the save file if spreadsheet is set to auto-load. Doesn't load if an error occurs
             if (AutoLoad && _recentSaves.Count > 0) TryLoadSpreadsheet(_recentSaves.Last(), out _);
 
@@ -96,6 +97,12 @@ namespace SpreadSheetGUI
             CellSelectionChange(spreadsheetPanel);
         }
 
+        private void OnIDRecieve(int id)
+        {
+            spreadsheetPanel.setID(id);
+            Console.WriteLine(id);
+        }
+
         /// <summary>
         /// Updates current online selections or adds a new one if not found
         /// </summary>
@@ -105,7 +112,7 @@ namespace SpreadSheetGUI
             var col = Regex.Match(selected.getCellName(), @"^[A-Z]").Value[0] - 'A';
             var row = int.Parse(Regex.Match(selected.getCellName(), @"\d*$").Value);
 
-            spreadsheetPanel.UpdateOnlineSelection(col, row, selected.getClientID(), selected.getClientName());
+            spreadsheetPanel.UpdateOnlineSelection(col, row - 1, selected.getClientID(), selected.getClientName());
         }
 
         private void OnlineCellEdited(CellUpdated c)

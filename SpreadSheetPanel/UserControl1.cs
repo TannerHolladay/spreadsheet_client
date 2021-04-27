@@ -36,8 +36,6 @@ namespace SS
         /// </summary>
         public event SelectionChangedHandler SelectionChanged;
 
-
-
         // The SpreadsheetPanel is composed of a DrawingPanel (where the grid is drawn),
         // a horizontal scroll bar, and a vertical scroll bar.
         private DrawingPanel drawingPanel;
@@ -173,6 +171,11 @@ namespace SS
             drawingPanel.setOnlineSelection(col, row, id, name);
         }
 
+        public void setID(int id)
+        {
+            drawingPanel.setID(id);
+        }
+
 
         /// <summary>
         /// When the SpreadsheetPanel is resized, we set the size and locations of the three
@@ -243,6 +246,8 @@ namespace SS
             private int _selectedCol;
             private int _selectedRow;
 
+            private int _id;
+
             private Dictionary<int, Tuple<int, int, string>> selections = new Dictionary<int, Tuple<int, int, string>>();
 
             // Coordinate of cell in upper-left corner of display
@@ -276,6 +281,10 @@ namespace SS
                 Invalidate();
             }
 
+            public void setID(int id)
+            {
+                _id = id;
+            }
 
             public bool SetValue(int col, int row, string c)
             {
@@ -314,6 +323,8 @@ namespace SS
                 {
                     selections[id] = t;
                 }
+
+                Invalidate();
             }
 
             public bool GetValue(int col, int row, out string c)
@@ -424,8 +435,10 @@ namespace SS
                 // Highlight the selection, if it is visible
                 if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
                 {
+                    Brush b = nextColorBrush(_id);
+                    Pen p = new Pen(b);
                     e.Graphics.DrawRectangle(
-                        pen,
+                        p,
                         new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
                                       LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
                                       DATA_COL_WIDTH - 2,
@@ -442,7 +455,7 @@ namespace SS
                         Brush b = nextColorBrush(client.Key);
                         Pen p = new Pen(b);
                         e.Graphics.DrawRectangle(
-                            pen,
+                            p,
                             new Rectangle(LABEL_COL_WIDTH + (client.Value.Item1 - _firstColumn) * DATA_COL_WIDTH + 1,
                                           LABEL_ROW_HEIGHT + (client.Value.Item2 - _firstRow) * DATA_ROW_HEIGHT + 1,
                                           DATA_COL_WIDTH - 2,
@@ -482,7 +495,7 @@ namespace SS
             {
                 int color = id % 8;
                 Brush b = new SolidBrush(Color.Black);
-                switch(id)
+                switch(color)
                 {
                     case 0:
                         {
@@ -517,12 +530,12 @@ namespace SS
                         }
                     case 6:
                         {
-                            b = new SolidBrush(Color.Beige);
+                            b = new SolidBrush(Color.DarkOliveGreen);
                             break;
                         }
                     case 7:
                         {
-                            b = new SolidBrush(Color.Cyan);
+                            b = new SolidBrush(Color.Pink);
                             break;
                         }
 

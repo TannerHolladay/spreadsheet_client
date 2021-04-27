@@ -1,4 +1,5 @@
 ﻿// Written by Tanner Holladay for CS 3500 on October 8th, 2020
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,7 +24,11 @@ namespace SpreadSheetGUI
         private bool AutoLoad
         {
             get => ItemAutoLoad.Checked;
-            set { ItemAutoLoad.Checked = value; if (_recentSaves?.Count > 0) SaveRecentFiles(); }
+            set
+            {
+                ItemAutoLoad.Checked = value;
+                if (_recentSaves?.Count > 0) SaveRecentFiles();
+            }
         }
 
         private static HelpBox _helpBox;
@@ -37,6 +42,7 @@ namespace SpreadSheetGUI
         private string _currentFile;
 
         private Controller clientController;
+
         private string CurrentFile
         {
             get => _currentFile;
@@ -88,7 +94,6 @@ namespace SpreadSheetGUI
             spreadsheetPanel.SelectionChanged += OnSelectionChanged;
 
             CellSelectionChange(spreadsheetPanel);
-
         }
 
         /// <summary>
@@ -105,20 +110,26 @@ namespace SpreadSheetGUI
 
         private void OnlineCellEdited(CellUpdated c)
         {
-            try
-            {
-                var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
-                foreach (var cell in updated)
+            Invoke(new MethodInvoker(
+                () =>
                 {
-                    UpdateCell(cell);
+                    try
+                    {
+                        var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
+                        foreach (var cell in updated)
+                        {
+                            UpdateCell(cell);
+                        }
+
+                        CellSelectionChange(spreadsheetPanel);
+                    }
+                    catch (Exception exception)
+                    {
+                        LabelError.Text = exception.Message;
+                        LabelError.Visible = true;
+                    }
                 }
-                CellSelectionChange(spreadsheetPanel);
-            }
-            catch (Exception exception)
-            {
-                LabelError.Text = exception.Message;
-                LabelError.Visible = true;
-            }
+            ));
         }
 
         private void OnServerShutdown(ServerShutdownError error)
@@ -149,7 +160,11 @@ namespace SpreadSheetGUI
 
         // Enum Types for the different warning choices
         public enum WarningType
-        { Error, Question, Warning }
+        {
+            Error,
+            Question,
+            Warning
+        }
 
         /// <summary>
         /// Helper method to make it easier to send a popup Dialog
@@ -179,6 +194,7 @@ namespace SpreadSheetGUI
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, @"Message type invalid");
             }
+
             var messageBox = MessageBox.Show(
                 message,
                 title,
@@ -239,6 +255,7 @@ namespace SpreadSheetGUI
                 {
                     UpdateCell(cell);
                 }
+
                 CurrentFile = filename;
                 return true;
             }
@@ -295,7 +312,7 @@ namespace SpreadSheetGUI
             else
                 BoxValue.Clear();
 
-            _selection = $"{(char)('A' + _col)}{_row + 1}";
+            _selection = $"{(char) ('A' + _col)}{_row + 1}";
             ButtonUpdate.Text = $@"Update: {_selection}";
             BoxSelected.Text = _selection;
 
@@ -356,10 +373,12 @@ namespace SpreadSheetGUI
                         var save = reader.ReadString();
                         if (!File.Exists(save)) continue;
                         _recentSaves.Insert(0, save);
-                        var item = new ToolStripMenuItem(Path.GetFileName(save), null, (sender, args) => LoadSpreadsheet(save));
+                        var item = new ToolStripMenuItem(Path.GetFileName(save), null,
+                            (sender, args) => LoadSpreadsheet(save));
                         RecentItem.DropDownItems.Insert(0, item);
                     }
                 }
+
                 SaveRecentFiles();
             }
             catch
@@ -441,18 +460,42 @@ namespace SpreadSheetGUI
 
         #region Controller Events
 
-        private void CloseWarning(object sender, FormClosingEventArgs eventArgs) => eventArgs.Cancel = FormCloseWarning(); // Event thrown from the form trying to be closed
-        private void OnSelectionChanged(SpreadsheetPanel ssp) => CellSelectionChange(ssp); // Event thrown when selecting a cell in the spreadsheet
-        private void ButtonUpdate_Click(object sender, EventArgs e) => EditSelectedCell(); // Event thrown selecting the update button to update the selected cell
-        private void LoadToolStripMenuItem_Click(object sender, EventArgs e) => OpenFileDialog.ShowDialog(); // Event thrown from clicking on the load menu item in File
-        private void SaveToolStripMenuItem_Click(object sender, EventArgs e) => SaveFileDialog.ShowDialog(); // Event thrown from clicking on the save menu item in File
-        private void SaveFileDialog_FileOk(object sender, CancelEventArgs e) => e.Cancel = SaveSpreadsheet(SaveFileDialog.FileName); // Event thrown when choosing a file to save to
-        private void OpenFileDialog_FileOk(object sender, CancelEventArgs e) => e.Cancel = !LoadSpreadsheet(OpenFileDialog.FileName); // Event thrown when choosing a file to load from
-        private void HelpToolStripMenuItem_Click(object sender, EventArgs e) => _helpBox.ShowDialog(); // Event thrown when selecting the help button on the tool strip
-        private void NewToolStripMenuItem_Click(object sender, EventArgs fileEvent) => Clear(); // Event thrown when selecting the "new" button in File
-        private void CloseToolStripMenuItem_Click(object sender, EventArgs e) => Close(); // Event thrown when choosing the close button in File
-        private void startupRecentSaveToolStripMenuItem_Click(object sender, EventArgs e) => AutoLoad = ItemAutoLoad.Checked;
-        private void ButtonSave_Click(object sender, EventArgs e) => SaveSpreadSheetAs(); // When the save button is clicked, saves to the last saved file
+        private void CloseWarning(object sender, FormClosingEventArgs eventArgs) =>
+            eventArgs.Cancel = FormCloseWarning(); // Event thrown from the form trying to be closed
+
+        private void OnSelectionChanged(SpreadsheetPanel ssp) =>
+            CellSelectionChange(ssp); // Event thrown when selecting a cell in the spreadsheet
+
+        private void ButtonUpdate_Click(object sender, EventArgs e) =>
+            EditSelectedCell(); // Event thrown selecting the update button to update the selected cell
+
+        private void LoadToolStripMenuItem_Click(object sender, EventArgs e) =>
+            OpenFileDialog.ShowDialog(); // Event thrown from clicking on the load menu item in File
+
+        private void SaveToolStripMenuItem_Click(object sender, EventArgs e) =>
+            SaveFileDialog.ShowDialog(); // Event thrown from clicking on the save menu item in File
+
+        private void SaveFileDialog_FileOk(object sender, CancelEventArgs e) =>
+            e.Cancel = SaveSpreadsheet(SaveFileDialog.FileName); // Event thrown when choosing a file to save to
+
+        private void OpenFileDialog_FileOk(object sender, CancelEventArgs e) =>
+            e.Cancel = !LoadSpreadsheet(OpenFileDialog.FileName); // Event thrown when choosing a file to load from
+
+        private void HelpToolStripMenuItem_Click(object sender, EventArgs e) =>
+            _helpBox.ShowDialog(); // Event thrown when selecting the help button on the tool strip
+
+        private void NewToolStripMenuItem_Click(object sender, EventArgs fileEvent) =>
+            Clear(); // Event thrown when selecting the "new" button in File
+
+        private void CloseToolStripMenuItem_Click(object sender, EventArgs e) =>
+            Close(); // Event thrown when choosing the close button in File
+
+        private void startupRecentSaveToolStripMenuItem_Click(object sender, EventArgs e) =>
+            AutoLoad = ItemAutoLoad.Checked;
+
+        private void ButtonSave_Click(object sender, EventArgs e) =>
+            SaveSpreadSheetAs(); // When the save button is clicked, saves to the last saved file
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) // Save spreadsheet using CTRL+S
         {
             if (keyData != (Keys.Control | Keys.S)) return false;
@@ -460,9 +503,8 @@ namespace SpreadSheetGUI
             return true;
         }
 
-
         #endregion
-        
+
         private void UndoButton_Click(object sender, EventArgs e)
         {
             clientController.SendUpdatesToServer(new UndoCell());
@@ -474,9 +516,5 @@ namespace SpreadSheetGUI
             revert.setCellName(_selection);
             clientController.SendUpdatesToServer(revert);
         }
-
-        
-
     }
-
 }

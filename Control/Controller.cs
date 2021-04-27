@@ -139,13 +139,13 @@ namespace Control
                     case "serverError":
                     {
                         ServerShutdownError error = JsonConvert.DeserializeObject<ServerShutdownError>(message);
-                        ServerShutdown.Invoke(error);
+                        ServerShutdown?.Invoke(error);
                         break;
                     }
                     case "requestError":
                     {
                         RequestError error = JsonConvert.DeserializeObject<RequestError>(message);
-                        RequestError.Invoke(error);
+                        RequestError?.Invoke(error);
                         break;
                     }
                 }

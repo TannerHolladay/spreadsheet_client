@@ -135,6 +135,7 @@ namespace SpreadSheetGUI
         private void OnServerShutdown(ServerShutdownError error)
         {
             Warning(error.getMessage(), "Server Shutdown", WarningType.Error);
+            Close();
         }
 
         private void OnRequestError(RequestError error)

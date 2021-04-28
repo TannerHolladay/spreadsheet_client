@@ -23,109 +23,6 @@ namespace NetworkingBackEnd
 
     public static class Networking
     {
-        /////////////////////////////////////////////////////////////////////////////////////////
-        // Server-Side Code
-        /////////////////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Starts a TcpListener on the specified port and starts an event-loop to accept new clients.
-        /// The event-loop is started with BeginAcceptSocket and uses AcceptNewClient as the callback.
-        /// AcceptNewClient will continue the event-loop.
-        /// </summary>
-        /// <param name="toCall">The method to call when a new connection is made</param>
-        /// <param name="port">The the port to listen on</param>
-        public static TcpListener StartServer(Action<SocketState> toCall, int port)
-        {
-            // If anything goes wrong with creating or starting the TcpListener, return null
-            try
-            {
-                TcpListener listener = new TcpListener(IPAddress.Any, port);
-                listener.Start();
-                Tuple<Action<SocketState>, TcpListener> args = new Tuple<Action<SocketState>, TcpListener>(toCall, listener);
-                listener.BeginAcceptSocket(AcceptNewClient, args);
-                return listener;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// To be used as the callback for accepting a new client that was initiated by StartServer, and 
-        /// continues an event-loop to accept additional clients.
-        ///
-        /// Uses EndAcceptSocket to finalize the connection and create a new SocketState. The SocketState's
-        /// OnNetworkAction should be set to the delegate that was passed to StartServer.
-        /// Then invokes the OnNetworkAction delegate with the new SocketState so the user can take action. 
-        /// 
-        /// If anything goes wrong during the connection process (such as the server being stopped externally), 
-        /// the OnNetworkAction delegate should be invoked with a new SocketState with its ErrorOccured flag set to true 
-        /// and an appropriate message placed in its ErrorMessage field. The event-loop should not continue if
-        /// an error occurs.
-        ///
-        /// If an error does not occur, after invoking OnNetworkAction with the new SocketState, an event-loop to accept 
-        /// new clients should be continued by calling BeginAcceptSocket again with this method as the callback.
-        /// </summary>
-        /// <param name="ar">The object asynchronously passed via BeginAcceptSocket. It must contain a tuple with 
-        /// 1) a delegate so the user can take action (a SocketState Action), and 2) the TcpListener</param>
-        private static void AcceptNewClient(IAsyncResult ar)
-        {
-            // Get all the information we need from ar
-            Tuple<Action<SocketState>, TcpListener> args = (Tuple<Action<SocketState>, TcpListener>)ar.AsyncState;
-            Action<SocketState> toCall = args.Item1;
-            TcpListener listener = args.Item2;
-            SocketState state = null;
-            // Try to invoke the EndAcceptSocket method
-            try
-            {
-                Socket theSocket = listener.EndAcceptSocket(ar);
-                state = new SocketState(toCall, theSocket);
-            }
-            // If an error occurs, indicate the error as specified and return so OnNetworkAction can be invoked
-            catch (Exception e)
-            {
-                state = new SocketState(toCall, null);
-                state.ErrorOccured = true;
-                state.ErrorMessage = e.Message;
-                return;
-            }
-            // Invoke OnNetworkAction for the specified SocketState
-            finally
-            {
-                state.OnNetworkAction(state);
-            }
-            // If everything works correctly, attempt to continue the event-loop to accept new clients.
-            try
-            {
-                listener.BeginAcceptSocket(AcceptNewClient, ar.AsyncState);
-            }
-            // If anything goes wrong with this, indicate the error as specified and invoke OnNetworkAction
-            catch (Exception e)
-            {
-                state = new SocketState(toCall, null);
-                state.ErrorOccured = true;
-                state.ErrorMessage = e.Message;
-                state.OnNetworkAction(state);
-            }
-
-        }
-
-        /// <summary>
-        /// Stops the given TcpListener.
-        /// </summary>
-        public static void StopServer(TcpListener listener)
-        {
-            // Try to stop the TcpListener. If any errors occur, do nothing
-            try
-            {
-                listener.Stop();
-            }
-            catch
-            {
-                ;
-            }
-        }
 
         /////////////////////////////////////////////////////////////////////////////////////////
         // Client-Side Code
@@ -151,48 +48,20 @@ namespace NetworkingBackEnd
         {
 
             // Establish the remote endpoint for the socket.
-            IPHostEntry ipHostInfo;
+            SocketState state = null;
             IPAddress ipAddress = IPAddress.None;
 
-            SocketState state = null;
-
-            // Determine if the server address is a URL or an IP
             try
             {
-                ipHostInfo = Dns.GetHostEntry(hostName);
-                bool foundIPV4 = false;
-                foreach (IPAddress addr in ipHostInfo.AddressList)
-                    if (addr.AddressFamily != AddressFamily.InterNetworkV6)
-                    {
-                        foundIPV4 = true;
-                        ipAddress = addr;
-                        break;
-                    }
-                // Didn't find any IPV4 addresses
-                if (!foundIPV4)
-                {
-                    // Indicate an error to the user, as specified in the documentation
-                    state = new SocketState(toCall, null);
-                    state.ErrorOccured = true;
-                    state.ErrorMessage = "No IPv4 address was found";
-                    return;
-                }
+                ipAddress = IPAddress.Parse(hostName);
             }
             catch (Exception)
             {
-                // see if host name is a valid ipaddress
-                try
-                {
-                    ipAddress = IPAddress.Parse(hostName);
-                }
-                catch (Exception)
-                {
-                    // Indicate an error to the user, as specified in the documentation
-                    state = new SocketState(toCall, null);
-                    state.ErrorOccured = true;
-                    state.ErrorMessage = "The host name was not a valid IP address";
-                    return;
-                }
+                // Indicate an error to the user, as specified in the documentation
+                state = new SocketState(toCall, null);
+                state.ErrorOccured = true;
+                state.ErrorMessage = "The host name was not a valid IP address";
+                return;
             }
 
             finally

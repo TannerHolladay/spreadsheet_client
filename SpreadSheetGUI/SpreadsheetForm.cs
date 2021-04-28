@@ -20,16 +20,6 @@ namespace SpreadSheetGUI
         // Name of the file to save recent saves to.
         private const string RecentSaveFile = "RecentSaves.xml";
 
-        // If true, then the program will always start with the last saved file.
-        private bool AutoLoad
-        {
-            get => ItemAutoLoad.Checked;
-            set
-            {
-                ItemAutoLoad.Checked = value;
-                if (_recentSaves?.Count > 0) SaveRecentFiles();
-            }
-        }
 
         private static HelpBox _helpBox;
         private static List<string> _recentSaves;
@@ -70,7 +60,6 @@ namespace SpreadSheetGUI
         public SpreadsheetForm(Controller controller, string spreadsheetName)
         {
             InitializeComponent();
-            LoadRecentSaves();
 
 
             _spreadsheet = new Spreadsheet(IsValid, Normalize, "ps6");
@@ -83,15 +72,12 @@ namespace SpreadSheetGUI
             clientController.ServerShutdown += OnServerShutdown;
             clientController.RequestError += OnRequestError;
             clientController.IDRecieved += OnIDRecieve;
-            // Auto loads the spreadsheet from the save file if spreadsheet is set to auto-load. Doesn't load if an error occurs
-            if (AutoLoad && _recentSaves.Count > 0) TryLoadSpreadsheet(_recentSaves.Last(), out _);
 
             AcceptButton = ButtonUpdate;
             LabelError.Visible = false;
 
             KeyPreview = true;
 
-            FormClosing += CloseWarning;
             spreadsheetPanel.SelectionChanged += OnSelectionChanged;
 
             CellSelectionChange(spreadsheetPanel);
@@ -220,59 +206,6 @@ namespace SpreadSheetGUI
             spreadsheetPanel.SetValue(col, row - 1, _spreadsheet.GetCellValue(cell).ToString());
         }
 
-        /// <summary>
-        /// Loads the spreadsheet selected from a file selection dialog
-        /// </summary>
-        /// <param name="filename">Name of the file to be loaded</param>
-        private bool LoadSpreadsheet(string filename)
-        {
-            if (TryLoadSpreadsheet(filename, out var message)) return true;
-            Warning(
-                message,
-                @"File Load Error!",
-                WarningType.Error
-            );
-            return false;
-        }
-
-        /// <summary>
-        /// Clears the spreadsheet of all data
-        /// </summary>
-        private void Clear()
-        {
-            _spreadsheet = new Spreadsheet(IsValid, Normalize, "ps6");
-            spreadsheetPanel.Clear();
-            CurrentFile = null;
-        }
-
-        /// <summary>
-        /// Tries to load a spreadsheet from the file given. Returns true if successful, false otherwise.
-        /// </summary>
-        /// <param name="filename">The name of the file to be loaded from</param>
-        /// <param name="message">The output error message if error was not successful</param>
-        /// <returns>True if successful, false otherwise</returns>
-        private bool TryLoadSpreadsheet(string filename, out string message)
-        {
-            message = "";
-            if (FormCloseWarning()) return true;
-            try
-            {
-                _spreadsheet = new Spreadsheet(filename, IsValid, Normalize, "ps6");
-                spreadsheetPanel.Clear();
-                foreach (var cell in _spreadsheet.GetNamesOfAllNonemptyCells())
-                {
-                    UpdateCell(cell);
-                }
-
-                CurrentFile = filename;
-                return true;
-            }
-            catch (Exception error)
-            {
-                message = error.Message;
-                return false;
-            }
-        }
 
         /// <summary>
         /// Saves a spreadsheet selected from a file selection dialog
@@ -351,55 +284,6 @@ namespace SpreadSheetGUI
             clientController.SendUpdatesToServer(selected);
         }
 
-        /// <summary>
-        /// Message thrown when there are unsaved changes in the spreadsheet
-        /// </summary>
-        private bool FormCloseWarning()
-        {
-            if (!_spreadsheet.Changed) return false;
-            return !Warning(
-                "You have unsaved changes! Are you sure you want to continue?",
-                "Save Warning!",
-                WarningType.Warning
-            );
-        }
-
-        /// <summary>
-        /// Loads any recent saves since the program has been used.
-        /// </summary>
-        private void LoadRecentSaves()
-        {
-            if (_recentSaves != null) return;
-
-            _recentSaves = new List<string>();
-            try
-            {
-                using (var reader = XmlReader.Create(RecentSaveFile))
-                {
-                    reader.ReadToFollowing("recentSaves");
-                    bool.TryParse(reader.GetAttribute("autoload"), out var autoLoad);
-                    AutoLoad = autoLoad;
-                    while (reader.Read())
-                    {
-                        if (!reader.IsStartElement() || reader.Name != "save") continue;
-                        var save = reader.ReadString();
-                        if (!File.Exists(save)) continue;
-                        _recentSaves.Insert(0, save);
-                        var item = new ToolStripMenuItem(Path.GetFileName(save), null,
-                            (sender, args) => LoadSpreadsheet(save));
-                        RecentItem.DropDownItems.Insert(0, item);
-                    }
-                }
-
-                SaveRecentFiles();
-            }
-            catch
-            {
-                Console.WriteLine(@"Unable to Load recent saves.");
-            }
-
-            RecentItem.Enabled = _recentSaves.Count != 0;
-        }
 
         /// <summary>
         /// Sets the current file of the program. If set, then the program will save
@@ -409,71 +293,11 @@ namespace SpreadSheetGUI
         private void SetCurrentFile(string value)
         {
             _currentFile = value;
-            if (value == null) return;
-
-            var count = _recentSaves.Count;
-            // Removes the item and puts it at the top or removes the last item if too big
-            if (_recentSaves.Contains(value))
-            {
-                var save = _recentSaves.IndexOf(value);
-                _recentSaves.RemoveAt(save);
-                RecentItem.DropDownItems.RemoveAt(save);
-            }
-            else if (count > 5)
-            {
-                _recentSaves.RemoveAt(count - 1);
-                RecentItem.DropDownItems.RemoveAt(count - 1);
-            }
-
-            var item = new ToolStripMenuItem(Path.GetFileName(value), null, (sender, args) => LoadSpreadsheet(value));
 
             ButtonSave.Enabled = true;
-            RecentItem.Enabled = true;
-            RecentItem.DropDownItems.Insert(0, item);
-            _recentSaves.Insert(0, value);
-
-
-            SaveRecentFiles();
-        }
-
-        /// <summary>
-        /// Saves the history of saved files. Called when a spreadsheet is saved.
-        /// </summary>
-        private void SaveRecentFiles()
-        {
-            try
-            {
-                using (var writer = XmlWriter.Create(RecentSaveFile))
-                {
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement("recentSaves");
-                    writer.WriteAttributeString("autoload", AutoLoad.ToString());
-
-                    foreach (var save in _recentSaves)
-                    {
-                        writer.WriteElementString("save", save);
-                    }
-
-
-                    writer.WriteEndElement();
-                    writer.WriteEndDocument();
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(
-                    e.Message,
-                    @"Unable to save to recentSaves!",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
-            }
         }
 
         #region Controller Events
-
-        private void CloseWarning(object sender, FormClosingEventArgs eventArgs) =>
-            eventArgs.Cancel = FormCloseWarning(); // Event thrown from the form trying to be closed
 
         private void OnSelectionChanged(SpreadsheetPanel ssp) =>
             CellSelectionChange(ssp); // Event thrown when selecting a cell in the spreadsheet
@@ -490,20 +314,11 @@ namespace SpreadSheetGUI
         private void SaveFileDialog_FileOk(object sender, CancelEventArgs e) =>
             e.Cancel = SaveSpreadsheet(SaveFileDialog.FileName); // Event thrown when choosing a file to save to
 
-        private void OpenFileDialog_FileOk(object sender, CancelEventArgs e) =>
-            e.Cancel = !LoadSpreadsheet(OpenFileDialog.FileName); // Event thrown when choosing a file to load from
-
         private void HelpToolStripMenuItem_Click(object sender, EventArgs e) =>
             _helpBox.ShowDialog(); // Event thrown when selecting the help button on the tool strip
 
-        private void NewToolStripMenuItem_Click(object sender, EventArgs fileEvent) =>
-            Clear(); // Event thrown when selecting the "new" button in File
-
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e) =>
             Close(); // Event thrown when choosing the close button in File
-
-        private void startupRecentSaveToolStripMenuItem_Click(object sender, EventArgs e) =>
-            AutoLoad = ItemAutoLoad.Checked;
 
         private void ButtonSave_Click(object sender, EventArgs e) =>
             SaveSpreadSheetAs(); // When the save button is clicked, saves to the last saved file

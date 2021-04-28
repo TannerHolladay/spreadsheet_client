@@ -153,17 +153,10 @@ namespace SpreadSheetGUI
             // 
             // fileToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.newToolStripMenuItem, this.ButtonSave, this.ButtonSaveAs, this.loadToolStripMenuItem1, this.RecentItem, this.closeToolStripMenuItem});
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.ButtonSave, this.ButtonSaveAs, this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
-            // 
-            // newToolStripMenuItem
-            // 
-            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.newToolStripMenuItem.Text = "New";
-            this.newToolStripMenuItem.Click += new System.EventHandler(this.NewToolStripMenuItem_Click);
             // 
             // ButtonSave
             // 
@@ -207,30 +200,12 @@ namespace SpreadSheetGUI
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.optionsToolStripMenuItem.Text = "Options";
             // 
-            // ItemAutoLoad
-            // 
-            this.ItemAutoLoad.Checked = true;
-            this.ItemAutoLoad.CheckOnClick = true;
-            this.ItemAutoLoad.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ItemAutoLoad.Name = "ItemAutoLoad";
-            this.ItemAutoLoad.Size = new System.Drawing.Size(163, 22);
-            this.ItemAutoLoad.Text = "Startup Last Save";
-            this.ItemAutoLoad.Click += new System.EventHandler(this.startupRecentSaveToolStripMenuItem_Click);
-            // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.HelpToolStripMenuItem_Click);
-            // 
-            // OpenFileDialog
-            // 
-            this.OpenFileDialog.DefaultExt = "sprd";
-            this.OpenFileDialog.FileName = "spreadsheet";
-            this.OpenFileDialog.Filter = "Spreadsheet Files|*.sprd|All files|*.*";
-            this.OpenFileDialog.Title = "Load File To Spreadsheet";
-            this.OpenFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialog_FileOk);
             // 
             // SaveFileDialog
             // 

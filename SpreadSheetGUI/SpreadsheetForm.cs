@@ -90,11 +90,10 @@ namespace SpreadSheetGUI
                 }));
         }
 
-        public bool OnIDReceived(int id)
+        public void OnIDReceived(int id)
         {
             spreadsheetPanel.setID(id);
             Console.WriteLine(id);
-            return true;
         }
 
         /// <summary>
@@ -112,29 +111,25 @@ namespace SpreadSheetGUI
         public void OnlineCellEdited(CellUpdated c)
         {
             Invoke(new MethodInvoker(
-                    () =>
+                () =>
+                {
+                    try
                     {
-                        try
+                        var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
+                        foreach (var cell in updated)
                         {
-                            var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
-                            foreach (var cell in updated)
-                            {
-                                UpdateCell(cell);
-                            }
-
-                            CellSelectionChange(spreadsheetPanel);
-                        }
-                        catch (Exception exception)
-                        {
-                            LabelError.Text = exception.Message;
-                            LabelError.Visible = true;
+                            UpdateCell(cell);
                         }
                     }
-                )); 
+                    catch (Exception exception)
+                    {
+                        LabelError.Text = exception.Message;
+                        LabelError.Visible = true;
+                    }
+                }
+            ));
         }
-
-
-
+        
         public void OnServerShutdown(ServerShutdownError error)
         {
             Warning(error.getMessage(), "Server Shutdown", WarningType.Error);

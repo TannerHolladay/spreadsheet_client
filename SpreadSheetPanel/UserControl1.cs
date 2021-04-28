@@ -176,6 +176,8 @@ namespace SS
             drawingPanel.setID(id);
         }
 
+       
+
 
         /// <summary>
         /// When the SpreadsheetPanel is resized, we set the size and locations of the three
@@ -266,8 +268,13 @@ namespace SS
                 DoubleBuffered = true;
                 _values = new Dictionary<Address, String>();
                 _ssp = ss;
+                _id = -1;
             }
 
+            private bool hasID()
+            {
+                return _id != -1;
+            }
 
             private bool InvalidAddress(int col, int row)
             {
@@ -432,17 +439,20 @@ namespace SS
                     DrawRowLabel(e.Graphics, y, f);
                 }
 
-                // Highlight the selection, if it is visible
-                if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
+                if (hasID())
                 {
-                    Brush b = nextColorBrush(_id);
-                    Pen p = new Pen(b);
-                    e.Graphics.DrawRectangle(
-                        p,
-                        new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
-                                      LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                      DATA_COL_WIDTH - 2,
-                                      DATA_ROW_HEIGHT - 2));
+                    // Highlight the selection, if it is visible
+                    if ((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0))
+                    {
+                        Brush b = nextColorBrush(_id);
+                        Pen p = new Pen(b);
+                        e.Graphics.DrawRectangle(
+                            p,
+                            new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
+                                          LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                          DATA_COL_WIDTH - 2,
+                                          DATA_ROW_HEIGHT - 2));
+                    } 
                 }
 
                 //Paints each selection
@@ -514,7 +524,7 @@ namespace SS
                         }
                     case 3:
                         {
-                            b = new SolidBrush(Color.Yellow);
+                            b = new SolidBrush(Color.Gold);
                             break;
                         }
                     case 4:
@@ -535,7 +545,7 @@ namespace SS
                         }
                     case 7:
                         {
-                            b = new SolidBrush(Color.Pink);
+                            b = new SolidBrush(Color.Chocolate);
                             break;
                         }
 

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SSJson;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace Control
 {
@@ -27,10 +28,13 @@ namespace Control
         private int _id;
 
         private string _username;
+
+        private Queue<string> incomingMessages;
         
         public Controller()
         {
             _id = -1;
+            incomingMessages = new Queue<string>();
         }
 
         public void Connect(string name, string serverIP)

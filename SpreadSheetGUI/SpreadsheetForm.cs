@@ -125,26 +125,29 @@ namespace SpreadSheetGUI
 
         public void OnlineCellEdited(CellUpdated c)
         {
-            Invoke(new MethodInvoker(
-                () =>
-                {
-                    try
-                    {
-                        var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
-                        foreach (var cell in updated)
+            if (this.IsHandleCreated)
+            {
+                Invoke(new MethodInvoker(
+                        () =>
                         {
-                            UpdateCell(cell);
-                        }
+                            try
+                            {
+                                var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
+                                foreach (var cell in updated)
+                                {
+                                    UpdateCell(cell);
+                                }
 
-                        CellSelectionChange(spreadsheetPanel);
-                    }
-                    catch (Exception exception)
-                    {
-                        LabelError.Text = exception.Message;
-                        LabelError.Visible = true;
-                    }
-                }
-            ));
+                                CellSelectionChange(spreadsheetPanel);
+                            }
+                            catch (Exception exception)
+                            {
+                                LabelError.Text = exception.Message;
+                                LabelError.Visible = true;
+                            }
+                        }
+                    )); 
+            }
         }
 
 

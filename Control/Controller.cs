@@ -1,12 +1,13 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SSJson;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
 using NetworkingBackEnd;
+
 
 namespace Control
 {
@@ -23,7 +24,7 @@ namespace Control
         public event Action Connected;
         public event Action Disconnected;
         public event Action<string> JoinSpreadsheet;
-        public event Func<int, bool> IDReceive;
+        public event Action<int> IDReceive;
         private SocketState _server;
         private int _id;
 
@@ -116,10 +117,7 @@ namespace Control
                 //SHOULD WE MAKE A SEPARATE LOOP FOR HANDSHAKE THEN USAGE????
                 if (int.TryParse(message, out int i))
                 {
-                    Console.WriteLine(message);
-                    _id = i;
-                    IDReceive?.Invoke(i);
-                    state.RemoveData(0, message.Length);
+                    IDReceive?.Invoke(_id = i);
                     continue;
                 }
 
@@ -128,33 +126,37 @@ namespace Control
                 if (message.Last() != '\n' || message[0] != '{')
                     continue;
                 
-                Console.WriteLine(message);
+                Console.WriteLine("Received:" + message);
                 
                 JObject x = JObject.Parse(message);
                 switch (x["messageType"]?.ToString())
                 {
                     case "cellUpdated":
                     {
+                        if (EditCell is null) continue;
                         CellUpdated updated = JsonConvert.DeserializeObject<CellUpdated>(message);
-                        EditCell?.Invoke(updated);
+                        EditCell.Invoke(updated);
                         break;
                     }
                     case "cellSelected":
                     {
+                        if (SelectCell is null) continue;
                         CellSelected selected = JsonConvert.DeserializeObject<CellSelected>(message);
-                        SelectCell?.Invoke(selected);
+                        SelectCell.Invoke(selected);
                         break;
                     }
                     case "serverError":
                     {
+                        if (ServerShutdown is null) continue;
                         ServerShutdownError error = JsonConvert.DeserializeObject<ServerShutdownError>(message);
-                        ServerShutdown?.Invoke(error);
+                        ServerShutdown.Invoke(error);
                         break;
                     }
                     case "requestError":
                     {
+                        if (RequestError is null) continue;
                         RequestError error = JsonConvert.DeserializeObject<RequestError>(message);
-                        RequestError?.Invoke(error);
+                        RequestError.Invoke(error);
                         break;
                     }
                     case "disconnected":
@@ -178,6 +180,7 @@ namespace Control
         public void SendUpdatesToServer(object o)
         {
             string message = JsonConvert.SerializeObject(o);
+            Console.WriteLine("Sent: " + message);
             Networking.Send(_server.TheSocket, message + "\n");
         }
 

@@ -125,8 +125,6 @@ namespace SpreadSheetGUI
 
         public void OnlineCellEdited(CellUpdated c)
         {
-            if (this.IsHandleCreated)
-            {
                 Invoke(new MethodInvoker(
                         () =>
                         {
@@ -147,7 +145,6 @@ namespace SpreadSheetGUI
                             }
                         }
                     )); 
-            }
         }
 
 

@@ -38,6 +38,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Resources", "Resources\Reso
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSJson", "SSJson\SSJson.csproj", "{03411DB9-9657-4423-8463-C1DA72F67C43}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkingBackEnd", "NetworkingBackEnd\NetworkingBackEnd.csproj", "{1442CF84-878C-4E0D-9C0A-C1A8938CF2BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,10 @@ Global
 		{03411DB9-9657-4423-8463-C1DA72F67C43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03411DB9-9657-4423-8463-C1DA72F67C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03411DB9-9657-4423-8463-C1DA72F67C43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1442CF84-878C-4E0D-9C0A-C1A8938CF2BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1442CF84-878C-4E0D-9C0A-C1A8938CF2BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1442CF84-878C-4E0D-9C0A-C1A8938CF2BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1442CF84-878C-4E0D-9C0A-C1A8938CF2BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

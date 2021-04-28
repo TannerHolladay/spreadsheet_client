@@ -31,7 +31,7 @@ namespace SpreadSheetGUI
         private int _row;
         private string _currentFile;
 
-        private Controller clientController;
+        private Controller _clientController;
 
         private string CurrentFile
         {
@@ -57,30 +57,39 @@ namespace SpreadSheetGUI
         /// Spreadsheet form that allows you to enter input. You can enter formulas by
         /// using "=" before the formula ex. (=2+A1)
         /// </summary>
-        public SpreadsheetForm(Controller controller)
+        public SpreadsheetForm(Controller controller, string spreadsheetName)
         {
             InitializeComponent();
+            _spreadsheet = new Spreadsheet(IsValid, Normalize, "1.0");
+            Text = spreadsheetName;
 
             _helpBox = new HelpBox();
-            clientController = controller;
-
+            _clientController = controller;
+            
             AcceptButton = ButtonUpdate;
             LabelError.Visible = false;
+            HandleCreated += OnShown;
         }
 
-        public void OnConnected(string spreadsheetName)
+        // Method invoker requires the form to be loaded, so it subscribes all events and then sends the spreadsheet name to the server
+        private void OnShown(object sender, EventArgs eventArgs)
         {
-            Text = spreadsheetName;
-            _spreadsheet = new Spreadsheet(IsValid, Normalize, "1.0");
-
             KeyPreview = true;
 
+            _clientController.IDReceive += OnIDReceived;
+            _clientController.EditCell += OnlineCellEdited;
+            _clientController.ServerShutdown += OnServerShutdown;
+            _clientController.RequestError += OnRequestError;
+            _clientController.ClientDisconnected += OnClientDisconnect;
+            _clientController.SelectCell += OnNewCellSelection;
             spreadsheetPanel.SelectionChanged += CellSelectionChange;
+            
+            _clientController.SendSpreadsheetRequest(Text);
             CellSelectionChange(spreadsheetPanel);
         }
 
 
-        public void OnClientDisconnect(Disconnected d)
+        private void OnClientDisconnect(Disconnected d)
         {
             Invoke(new MethodInvoker(
                 () =>
@@ -99,8 +108,8 @@ namespace SpreadSheetGUI
         /// <summary>
         /// Updates current online selections or adds a new one if not found
         /// </summary>
-        /// <param name="c"></param>
-        public void OnNewCellSelection(CellSelected selected)
+        /// <param name="selected"></param>
+        private void OnNewCellSelection(CellSelected selected)
         {
             var col = Regex.Match(selected.getCellName(), @"^[A-Z]").Value[0] - 'A';
             var row = int.Parse(Regex.Match(selected.getCellName(), @"\d*$").Value);
@@ -108,7 +117,7 @@ namespace SpreadSheetGUI
             spreadsheetPanel.UpdateOnlineSelection(col, row - 1, selected.getClientID(), selected.getClientName());
         }
 
-        public void OnlineCellEdited(CellUpdated c)
+        private void OnlineCellEdited(CellUpdated c)
         {
             Invoke(new MethodInvoker(
                 () =>
@@ -116,7 +125,7 @@ namespace SpreadSheetGUI
                     try
                     {
                         var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
-                        foreach (var cell in updated)
+                        foreach (string cell in updated)
                         {
                             UpdateCell(cell);
                         }
@@ -129,14 +138,14 @@ namespace SpreadSheetGUI
                 }
             ));
         }
-        
-        public void OnServerShutdown(ServerShutdownError error)
+
+        private void OnServerShutdown(ServerShutdownError error)
         {
             Warning(error.getMessage(), "Server Shutdown", WarningType.Error);
             Close();
         }
 
-        public void OnRequestError(RequestError error)
+        private void OnRequestError(RequestError error)
         {
             Warning(error.getMessage() + "\nCell: " + error.getCellName(), "Invalid Request", WarningType.Error);
         }
@@ -206,8 +215,8 @@ namespace SpreadSheetGUI
 
         private void UpdateCell(string cell)
         {
-            var col = Regex.Match(cell, @"^[A-Z]").Value[0] - 'A';
-            var row = int.Parse(Regex.Match(cell, @"\d*$").Value);
+            int col = Regex.Match(cell, @"^[A-Z]").Value[0] - 'A';
+            int row = int.Parse(Regex.Match(cell, @"\d*$").Value);
             spreadsheetPanel.SetValue(col, row - 1, _spreadsheet.GetCellValue(cell).ToString());
         }
 
@@ -244,8 +253,8 @@ namespace SpreadSheetGUI
             SelectCell selected = new SelectCell();
             selected.setCellName(_selection);
 
-            clientController.SendUpdatesToServer(selected);
-            clientController.SendUpdatesToServer(edit);
+            _clientController.SendUpdatesToServer(selected);
+            _clientController.SendUpdatesToServer(edit);
         }
 
         /// <summary>
@@ -286,7 +295,7 @@ namespace SpreadSheetGUI
             // Tell the server that this client selected a new cell.
             // Client ID not needed prior to selecting a cell (not mentioned in protocol document) < - Double check this
 
-            clientController.SendUpdatesToServer(selected);
+            _clientController.SendUpdatesToServer(selected);
         }
 
 
@@ -336,14 +345,14 @@ namespace SpreadSheetGUI
 
         private void UndoButton_Click(object sender, EventArgs e)
         {
-            clientController.SendUpdatesToServer(new UndoCell());
+            _clientController.SendUpdatesToServer(new UndoCell());
         }
 
         private void RevertButton_Click(object sender, EventArgs e)
         {
             RevertCell revert = new RevertCell();
             revert.setCellName(_selection);
-            clientController.SendUpdatesToServer(revert);
+            _clientController.SendUpdatesToServer(revert);
         }
     }
 }

@@ -23,17 +23,7 @@ namespace SpreadSheetGUI
             _clientController.Error += Error;
             _clientController.Disconnected += Disconnected;
             _clientController.GetSpreadsheets += SetSpreadsheetNames;
-
-            _form = new SpreadsheetForm(_clientController);
-
-
-            _clientController.IDReceive += _form.OnIDReceived;
-            _clientController.EditCell += _form.OnlineCellEdited;
-            _clientController.ServerShutdown += _form.OnServerShutdown;
-            _clientController.RequestError += _form.OnRequestError;
-            _clientController.ClientDisconnected += _form.OnClientDisconnect;
-            _clientController.SelectCell += _form.OnNewCellSelection;
-
+            
             Username.TextChanged += Connection_TextChanged;
             IpAddress.TextChanged += Connection_TextChanged;
         }
@@ -116,9 +106,8 @@ namespace SpreadSheetGUI
 
         private void Join_Click(object sender, EventArgs e)
         {
-            _clientController.SendSpreadsheetRequest(SpreadsheetName.Text);
             Hide();
-            _form.OnConnected(SpreadsheetName.Text);
+            _form = new SpreadsheetForm(_clientController, SpreadsheetName.Text);
             _form.ShowDialog();
             Close();
         }

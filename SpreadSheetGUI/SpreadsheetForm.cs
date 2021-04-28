@@ -63,9 +63,6 @@ namespace SpreadSheetGUI
 
             _helpBox = new HelpBox();
             clientController = controller;
-            
-            // Auto loads the spreadsheet from the save file if spreadsheet is set to auto-load. Doesn't load if an error occurs
-            if (AutoLoad && _recentSaves.Count > 0) TryLoadSpreadsheet(_recentSaves.Last(), out _);
 
             AcceptButton = ButtonUpdate;
             LabelError.Visible = false;
@@ -114,26 +111,26 @@ namespace SpreadSheetGUI
 
         public void OnlineCellEdited(CellUpdated c)
         {
-                Invoke(new MethodInvoker(
-                        () =>
+            Invoke(new MethodInvoker(
+                    () =>
+                    {
+                        try
                         {
-                            try
+                            var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
+                            foreach (var cell in updated)
                             {
-                                var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
-                                foreach (var cell in updated)
-                                {
-                                    UpdateCell(cell);
-                                }
+                                UpdateCell(cell);
+                            }
 
-                                CellSelectionChange(spreadsheetPanel);
-                            }
-                            catch (Exception exception)
-                            {
-                                LabelError.Text = exception.Message;
-                                LabelError.Visible = true;
-                            }
+                            CellSelectionChange(spreadsheetPanel);
                         }
-                    )); 
+                        catch (Exception exception)
+                        {
+                            LabelError.Text = exception.Message;
+                            LabelError.Visible = true;
+                        }
+                    }
+                )); 
         }
 
 
@@ -311,9 +308,6 @@ namespace SpreadSheetGUI
         }
 
         #region Controller Events
-
-        private void CloseWarning(object sender, FormClosingEventArgs eventArgs) =>
-            eventArgs.Cancel = FormCloseWarning(); // Event thrown from the form trying to be closed
 
         private void ButtonUpdate_Click(object sender, EventArgs e) =>
             EditSelectedCell(); // Event thrown selecting the update button to update the selected cell

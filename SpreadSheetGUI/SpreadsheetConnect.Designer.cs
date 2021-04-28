@@ -131,7 +131,6 @@ namespace SpreadSheetGUI
             this.SpreadsheetName.Name = "SpreadsheetName";
             this.SpreadsheetName.Size = new System.Drawing.Size(497, 29);
             this.SpreadsheetName.TabIndex = 9;
-            this.SpreadsheetName.TextChanged += new System.EventHandler(this.SpreadsheetName_TextChanged);
             // 
             // Join
             // 

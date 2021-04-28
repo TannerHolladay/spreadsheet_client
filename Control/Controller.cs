@@ -25,6 +25,7 @@ namespace Control
         public event Action Disconnected;
         public event Action<string> JoinSpreadsheet;
         public event Action<int> IDReceive;
+        public bool IsConnected { get; set; }
         private SocketState _server;
         private int _id;
 
@@ -47,6 +48,7 @@ namespace Control
         public void Disconnect()
         {
             _server = null;
+            IsConnected = false;
             Disconnected?.Invoke();
         }
 
@@ -60,9 +62,11 @@ namespace Control
             {
                 // inform the view
                 Error?.Invoke(socket.ErrorMessage, "Error Connecting To The Server");
+                Disconnect();
                 return;
             }
             
+            IsConnected = true;
             Connected?.Invoke();
             
             _server = socket;
@@ -77,6 +81,14 @@ namespace Control
         /// <param name="state"></param>
         private void ReceiveSpreadsheets(SocketState state)
         {
+            if (state.ErrorOccured)
+            {
+                // inform the view
+                Error?.Invoke(state.ErrorMessage, "Error Receiving Spreadsheets");
+                Disconnect();
+                return;
+            }
+            
             string data = state.GetData();
             if (!data.EndsWith("\n\n"))
             {
@@ -103,6 +115,13 @@ namespace Control
         /// <param name="state"></param>
         private void ReceiveUpdatesLoop(SocketState state)
         {
+            if (state.ErrorOccured)
+            {
+                // inform the view
+                Error?.Invoke(state.ErrorMessage, "Error In Event Loop");
+                Disconnect();
+                return;
+            }
             //TODO: Implement editing loop. Check 1.4 Entering the Editing and Updating Loop pg. 4
             string incomingMessages = state.GetData();
             string[] data = Regex.Split(incomingMessages, @"(?<=[\n])");

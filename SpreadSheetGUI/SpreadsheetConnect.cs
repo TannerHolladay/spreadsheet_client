@@ -26,6 +26,7 @@ namespace SpreadSheetGUI
             
             Username.TextChanged += Connection_TextChanged;
             IpAddress.TextChanged += Connection_TextChanged;
+            SpreadsheetName.TextChanged += (sender, args) => SpreadsheetName_TextChanged();
         }
         private void Connected()
         {
@@ -35,7 +36,7 @@ namespace SpreadSheetGUI
                 _currentName = Username.Text;
                 _currentIP = IpAddress.Text;
                 ButtonConnect.Enabled = false;
-
+                SpreadsheetName_TextChanged();
             }));
         }
 
@@ -56,6 +57,7 @@ namespace SpreadSheetGUI
                 _currentName = null;
                 _currentIP = null;
                 ButtonConnect.Enabled = true;
+                Join.Enabled = false;
             }));
         }
 
@@ -120,9 +122,10 @@ namespace SpreadSheetGUI
             }
         }
 
-        private void SpreadsheetName_TextChanged(object sender, EventArgs e)
+        private void SpreadsheetName_TextChanged()
         {
-            Join.Enabled = !string.IsNullOrWhiteSpace(SpreadsheetName.Text);
+            if (_clientController.IsConnected)
+                Join.Enabled = !string.IsNullOrWhiteSpace(SpreadsheetName.Text);
         }
 
         private void Connection_TextChanged(object sender, EventArgs eventArgs)

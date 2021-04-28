@@ -67,40 +67,48 @@ namespace SpreadSheetGUI
         /// Spreadsheet form that allows you to enter input. You can enter formulas by
         /// using "=" before the formula ex. (=2+A1)
         /// </summary>
-        public SpreadsheetForm(Controller controller, string spreadsheetName)
+        public SpreadsheetForm(Controller controller)
         {
             InitializeComponent();
             LoadRecentSaves();
 
-
-            _spreadsheet = new Spreadsheet(IsValid, Normalize, "ps6");
             _helpBox = new HelpBox();
-            Text = spreadsheetName;
             clientController = controller;
 
-            clientController.EditCell += OnlineCellEdited;
-            clientController.SelectCell += OnNewCellSelection;
-            clientController.ServerShutdown += OnServerShutdown;
-            clientController.RequestError += OnRequestError;
-            clientController.IDRecieved += OnIDRecieve;
             // Auto loads the spreadsheet from the save file if spreadsheet is set to auto-load. Doesn't load if an error occurs
             if (AutoLoad && _recentSaves.Count > 0) TryLoadSpreadsheet(_recentSaves.Last(), out _);
 
             AcceptButton = ButtonUpdate;
             LabelError.Visible = false;
+        }
+
+        public void OnConnected(string spreadsheetName)
+        {
+            Text = spreadsheetName;
+            _spreadsheet = new Spreadsheet(IsValid, Normalize, "1.0");
 
             KeyPreview = true;
 
-            FormClosing += CloseWarning;
-            spreadsheetPanel.SelectionChanged += OnSelectionChanged;
-
+            spreadsheetPanel.SelectionChanged += CellSelectionChange;
             CellSelectionChange(spreadsheetPanel);
         }
 
-        private void OnIDRecieve(int id)
+
+        public void OnClientDisconnect(Disconnected d)
+        {
+            Invoke(new MethodInvoker(
+                () =>
+                {
+                    LabelError.Text = "User " + d.getUserID() + " disconnected";
+                    LabelError.Visible = true;
+                }));
+        }
+
+        public bool OnIDReceived(int id)
         {
             spreadsheetPanel.setID(id);
             Console.WriteLine(id);
+            return true;
         }
 
         /// <summary>
@@ -115,7 +123,7 @@ namespace SpreadSheetGUI
             spreadsheetPanel.UpdateOnlineSelection(col, row - 1, selected.getClientID(), selected.getClientName());
         }
 
-        private void OnlineCellEdited(CellUpdated c)
+        public void OnlineCellEdited(CellUpdated c)
         {
             Invoke(new MethodInvoker(
                 () =>
@@ -139,13 +147,15 @@ namespace SpreadSheetGUI
             ));
         }
 
-        private void OnServerShutdown(ServerShutdownError error)
+
+
+        public void OnServerShutdown(ServerShutdownError error)
         {
             Warning(error.getMessage(), "Server Shutdown", WarningType.Error);
             Close();
         }
 
-        private void OnRequestError(RequestError error)
+        public void OnRequestError(RequestError error)
         {
             Warning(error.getMessage() + "\nCell: " + error.getCellName(), "Invalid Request", WarningType.Error);
         }
@@ -474,9 +484,6 @@ namespace SpreadSheetGUI
 
         private void CloseWarning(object sender, FormClosingEventArgs eventArgs) =>
             eventArgs.Cancel = FormCloseWarning(); // Event thrown from the form trying to be closed
-
-        private void OnSelectionChanged(SpreadsheetPanel ssp) =>
-            CellSelectionChange(ssp); // Event thrown when selecting a cell in the spreadsheet
 
         private void ButtonUpdate_Click(object sender, EventArgs e) =>
             EditSelectedCell(); // Event thrown selecting the update button to update the selected cell

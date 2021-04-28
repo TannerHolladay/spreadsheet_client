@@ -17,11 +17,12 @@ namespace Control
         public event Action<CellSelected> SelectCell;
         public event Action<ServerShutdownError> ServerShutdown;
         public event Action<RequestError> RequestError;
+        public event Action<Disconnected> ClientDisconnected;
         public event Action<string, string> Error;
         public event Action Connected;
         public event Action Disconnected;
         public event Action<string> JoinSpreadsheet;
-        public event Action<int> IDRecieved;
+        public event Func<int, bool> IDReceive;
         private SocketState _server;
         private int _id;
 
@@ -111,8 +112,10 @@ namespace Control
                 //SHOULD WE MAKE A SEPARATE LOOP FOR HANDSHAKE THEN USAGE????
                 if (int.TryParse(message, out int i))
                 {
+                    Console.WriteLine(message);
                     _id = i;
-                    IDRecieved?.Invoke(_id);
+                    IDReceive?.Invoke(i);
+                    state.RemoveData(0, message.Length);
                     continue;
                 }
 
@@ -150,6 +153,13 @@ namespace Control
                         RequestError?.Invoke(error);
                         break;
                     }
+                    case "disconnected":
+                    {
+                        Disconnected d = JsonConvert.DeserializeObject<Disconnected>(message);
+                        ClientDisconnected?.Invoke(d);
+                        break;
+                     }
+
                 }
 
                 state.RemoveData(0, message.Length);

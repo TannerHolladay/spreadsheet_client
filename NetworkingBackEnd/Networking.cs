@@ -53,7 +53,14 @@ namespace NetworkingBackEnd
 
             try
             {
-                ipAddress = IPAddress.Parse(hostName);
+                if (hostName == "localhost")
+                {
+                    ipAddress = IPAddress.Parse("127.0.0.1");
+                }
+                else
+                {
+                    ipAddress = IPAddress.Parse(hostName);
+                }
             }
             catch (Exception)
             {

@@ -102,7 +102,6 @@ namespace SpreadSheetGUI
         public void OnIDReceived(int id)
         {
             spreadsheetPanel.setID(id);
-            Console.WriteLine(id);
         }
 
         /// <summary>
@@ -129,6 +128,12 @@ namespace SpreadSheetGUI
                         {
                             UpdateCell(cell);
                         }
+
+                        spreadsheetPanel.GetSelection(out _col, out _row);
+                        if (spreadsheetPanel.GetValue(_col, _row, out var value))
+                            BoxValue.Text = value;
+                        else
+                            BoxValue.Clear();
                     }
                     catch (Exception exception)
                     {

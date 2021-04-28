@@ -250,10 +250,6 @@ namespace SpreadSheetGUI
             edit.setCellName(_selection);
             edit.setContents(BoxContents.Text);
 
-            SelectCell selected = new SelectCell();
-            selected.setCellName(_selection);
-
-            _clientController.SendUpdatesToServer(selected);
             _clientController.SendUpdatesToServer(edit);
         }
 

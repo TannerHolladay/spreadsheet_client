@@ -6,6 +6,9 @@ using System.Text;
 
 namespace SSJson
 {
+    /// <summary>
+    /// Class for Deserializing a server shutdown message to an object
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class ServerShutdownError
     {

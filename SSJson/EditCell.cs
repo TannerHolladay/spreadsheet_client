@@ -5,7 +5,10 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SSJson
-{
+
+{    /// <summary>
+     /// Class for Deserializing a Json Edit message to an object
+     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class EditCell
     {

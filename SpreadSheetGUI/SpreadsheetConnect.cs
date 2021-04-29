@@ -14,6 +14,9 @@ namespace SpreadSheetGUI
 
         private Controller _clientController;
 
+        /// <summary>
+        /// Creates a new Homepage
+        /// </summary>
         public SpreadsheetConnect()
         {
             InitializeComponent();
@@ -29,6 +32,9 @@ namespace SpreadSheetGUI
             IpAddress.TextChanged += Connection_TextChanged;
             SpreadsheetName.TextChanged += (sender, args) => SpreadsheetName_TextChanged();
         }
+        /// <summary>
+        /// Connection listener: When client connects to server
+        /// </summary>
         private void Connected()
         {
             Invoke(new MethodInvoker(
@@ -41,6 +47,11 @@ namespace SpreadSheetGUI
             }));
         }
 
+        /// <summary>
+        /// Creates a warning on Error
+        /// </summary>
+        /// <param name="message">Error message</param>
+        /// <param name="title">Error Name</param>
         private void Error(string message, string title)
         {
             Invoke(new MethodInvoker(
@@ -50,6 +61,9 @@ namespace SpreadSheetGUI
             }));
         }
 
+        /// <summary>
+        /// Called When Client Disconnects
+        /// </summary>
         private void Disconnected()
         {
             Invoke(new MethodInvoker(
@@ -88,6 +102,11 @@ namespace SpreadSheetGUI
             }));
         }
 
+        /// <summary>
+        /// ButtonConnect click listener: Connects client to Server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonConnect_Click(object sender, EventArgs e)
         {
             string username = Username.Text;
@@ -107,6 +126,11 @@ namespace SpreadSheetGUI
             _clientController.Connect(username, address);
         }
 
+        /// <summary>
+        /// Joins the spreadsheet that is selected
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Join_Click(object sender, EventArgs e)
         {
             Hide();
@@ -115,6 +139,11 @@ namespace SpreadSheetGUI
             Close();
         }
 
+        /// <summary>
+        /// Listener for spreadsheet names list
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SpreadsheetList_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (SpreadsheetList.SelectedItem != null)
@@ -123,12 +152,20 @@ namespace SpreadSheetGUI
             }
         }
 
+        /// <summary>
+        /// Spreadsheet name selection listener
+        /// </summary>
         private void SpreadsheetName_TextChanged()
         {
             if (_clientController.IsConnected)
                 Join.Enabled = !string.IsNullOrWhiteSpace(SpreadsheetName.Text);
         }
 
+        /// <summary>
+        /// Connection status listener
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
         private void Connection_TextChanged(object sender, EventArgs eventArgs)
         {
             ButtonConnect.Enabled = !string.IsNullOrWhiteSpace(Username.Text) &&

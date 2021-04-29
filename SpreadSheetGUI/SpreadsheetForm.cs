@@ -33,6 +33,9 @@ namespace SpreadSheetGUI
 
         private Controller _clientController;
 
+        /// <summary>
+        /// Current save file client is downloading to
+        /// </summary>
         private string CurrentFile
         {
             get => _currentFile;
@@ -88,7 +91,10 @@ namespace SpreadSheetGUI
             CellSelectionChange(spreadsheetPanel);
         }
 
-
+        /// <summary>
+        /// Client Disconnect Listener
+        /// </summary>
+        /// <param name="d">disconnected Json object</param>
         private void OnClientDisconnect(Disconnected d)
         {
             Invoke(new MethodInvoker(
@@ -99,6 +105,10 @@ namespace SpreadSheetGUI
                 }));
         }
 
+        /// <summary>
+        /// ID received listener
+        /// </summary>
+        /// <param name="id">id of the client</param>
         public void OnIDReceived(int id)
         {
             spreadsheetPanel.setID(id);
@@ -107,7 +117,7 @@ namespace SpreadSheetGUI
         /// <summary>
         /// Updates current online selections or adds a new one if not found
         /// </summary>
-        /// <param name="selected"></param>
+        /// <param name="selected">CellSelected Json object</param>
         private void OnNewCellSelection(CellSelected selected)
         {
             var col = Regex.Match(selected.getCellName(), @"^[A-Z]").Value[0] - 'A';
@@ -116,6 +126,10 @@ namespace SpreadSheetGUI
             spreadsheetPanel.UpdateOnlineSelection(col, row - 1, selected.getClientID(), selected.getClientName());
         }
 
+        /// <summary>
+        /// Online clients cell edit listener
+        /// </summary>
+        /// <param name="c">CellUpdated Json object</param>
         private void OnlineCellEdited(CellUpdated c)
         {
             Invoke(new MethodInvoker(
@@ -144,12 +158,20 @@ namespace SpreadSheetGUI
             ));
         }
 
+        /// <summary>
+        /// Server Shutdown listener: Displays a warning
+        /// </summary>
+        /// <param name="error"></param>
         private void OnServerShutdown(ServerShutdownError error)
         {
             Warning(error.getMessage(), "Server Shutdown", WarningType.Error);
             Close();
         }
 
+        /// <summary>
+        /// Request Error listener: Displays and warning
+        /// </summary>
+        /// <param name="error"></param>
         private void OnRequestError(RequestError error)
         {
             Warning(error.getMessage() + "\nCell: " + error.getCellName(), "Invalid Request", WarningType.Error);
@@ -218,6 +240,10 @@ namespace SpreadSheetGUI
             return messageBox == DialogResult.OK || messageBox == DialogResult.Yes;
         }
 
+        /// <summary>
+        /// Updates the cellValue of Cell
+        /// </summary>
+        /// <param name="cell">Name of cell</param>
         private void UpdateCell(string cell)
         {
             int col = Regex.Match(cell, @"^[A-Z]").Value[0] - 'A';
@@ -344,11 +370,22 @@ namespace SpreadSheetGUI
 
         #endregion
 
+
+        /// <summary>
+        /// Undo Button Click listener: Sends Undo message to server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UndoButton_Click(object sender, EventArgs e)
         {
             _clientController.SendUpdatesToServer(new UndoCell());
         }
 
+        /// <summary>
+        /// Revert Button Click listener: Sends revert message to server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RevertButton_Click(object sender, EventArgs e)
         {
             RevertCell revert = new RevertCell();

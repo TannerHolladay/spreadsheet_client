@@ -6,6 +6,9 @@ using System.Text;
 
 namespace SSJson
 {
+    /// <summary>
+    /// Class for Deserializing a RequestError message to an object
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class RequestError
     {

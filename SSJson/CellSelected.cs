@@ -6,6 +6,10 @@ using Newtonsoft.Json;
 
 namespace SSJson
 {
+
+    /// <summary>
+    /// Class for Deserializing a Json selection message to an object
+    /// </summary>
     public class CellSelected
     {
         [JsonProperty(PropertyName = "cellName")]

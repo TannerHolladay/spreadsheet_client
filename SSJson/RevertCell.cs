@@ -7,6 +7,9 @@ using System.Text;
 
 namespace SSJson
 {
+    /// <summary>
+    /// Class for serializing a revert message to an object
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class RevertCell
     {

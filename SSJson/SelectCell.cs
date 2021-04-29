@@ -6,6 +6,9 @@ using System.Text;
 
 namespace SSJson
 {
+    /// <summary>
+    /// Class for serializing a selection message to an object
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class SelectCell
     {

@@ -4,6 +4,9 @@ using System;
 
 namespace SSJson
 {
+    /// <summary>
+    /// Class for serializing a cell updated message to an object
+    /// </summary>
     public class CellUpdated
     {
 

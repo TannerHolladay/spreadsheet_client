@@ -1,10 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿
+// Written by Tanner Holladay, Noah Carlson, Abbey Nelson, Sergio Remigio, Travis Schnider, Jimmy Glasscock for CS 3505 on April 28, 2021using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SSJson
 {
+    /// <summary>
+    /// Class for serializing a revert message to an object
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class RevertCell
     {

@@ -1,10 +1,15 @@
-﻿using System;
+﻿// Written by Tanner Holladay, Noah Carlson, Abbey Nelson, Sergio Remigio, Travis Schnider, Jimmy Glasscock for CS 3505 on April 28, 2021
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 
 namespace SSJson
 {
+
+    /// <summary>
+    /// Class for Deserializing a Json selection message to an object
+    /// </summary>
     public class CellSelected
     {
         [JsonProperty(PropertyName = "cellName")]

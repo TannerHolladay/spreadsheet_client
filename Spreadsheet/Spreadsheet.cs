@@ -1,4 +1,5 @@
-﻿// Written by Tanner Holladay for CS 3500, September 2020.
+// Written by Tanner Holladay for CS 3500, September 2020.
+// Updated by Noah Carlson for CS 3505, April 28, 2021
 
 using System;
 using System.Collections.Generic;

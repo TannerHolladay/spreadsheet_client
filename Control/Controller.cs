@@ -1,4 +1,4 @@
-﻿
+﻿// Written by Tanner Holladay, Noah Carlson, Abbey Nelson, Sergio Remigio, Travis Schnider, Jimmy Glasscock for CS 3505 on April 28, 2021
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,18 +33,30 @@ namespace Control
 
         private Queue<string> incomingMessages;
         
+
+        /// <summary>
+        /// Client controller
+        /// </summary>
         public Controller()
         {
             _id = -1;
             incomingMessages = new Queue<string>();
         }
 
+        /// <summary>
+        /// Connects client to server with username and begins Handshake with the server
+        /// </summary>
+        /// <param name="name">Username</param>
+        /// <param name="serverIP">Ip to connect to</param>
         public void Connect(string name, string serverIP)
         {
             _username = name;
             Networking.ConnectToServer(OnConnect, serverIP, Port);
         }
         
+        /// <summary>
+        /// Disconnects Client from the server
+        /// </summary>
         public void Disconnect()
         {
             _server = null;
@@ -53,7 +65,7 @@ namespace Control
         }
 
         /// <summary>
-        /// TCP connection created.
+        /// TCP connection created. This then continues the handshake
         /// </summary>
         /// <param name="socket"></param>
         private void OnConnect(SocketState socket)
@@ -99,6 +111,10 @@ namespace Control
             GetSpreadsheets?.Invoke(spreadSheetNames.Where(sheet => !string.IsNullOrEmpty(sheet)).ToArray());
         }
 
+        /// <summary>
+        /// Sends selected spreadsheet name to server and moves into the message loop
+        /// </summary>
+        /// <param name="spreadsheet">Name of Spreadsheet</param>
         public void SendSpreadsheetRequest(string spreadsheet)
         {
             _server.ClearData();
@@ -110,7 +126,7 @@ namespace Control
         }
 
         /// <summary>
-        /// 
+        /// Receives messages from server and handles them
         /// </summary>
         /// <param name="state"></param>
         private void ReceiveUpdatesLoop(SocketState state)
@@ -122,7 +138,7 @@ namespace Control
                 Disconnect();
                 return;
             }
-            //TODO: Implement editing loop. Check 1.4 Entering the Editing and Updating Loop pg. 4
+            
             string incomingMessages = state.GetData();
             string[] data = Regex.Split(incomingMessages, @"(?<=[\n])");
 
@@ -133,7 +149,6 @@ namespace Control
                     continue;
                 
                 //Last Step of handshake if message is the id
-                //SHOULD WE MAKE A SEPARATE LOOP FOR HANDSHAKE THEN USAGE????
                 if (int.TryParse(message, out int i))
                 {
                     IDReceive?.Invoke(_id = i);
@@ -147,6 +162,7 @@ namespace Control
                 
                 Console.WriteLine("Received:" + message);
                 
+                //Parse message as json object
                 JObject x = JObject.Parse(message);
                 switch (x["messageType"]?.ToString())
                 {
@@ -196,6 +212,10 @@ namespace Control
 
         }
 
+        /// <summary>
+        /// Sends a message to the server in Json Format
+        /// </summary>
+        /// <param name="o">Object to be serialized and sent</param>
         public void SendUpdatesToServer(object o)
         {
             string message = JsonConvert.SerializeObject(o);
@@ -203,9 +223,5 @@ namespace Control
             Networking.Send(_server.TheSocket, message + "\n");
         }
 
-        public bool HasID()
-        {
-            return _id != -1;
-        }
     }
 }

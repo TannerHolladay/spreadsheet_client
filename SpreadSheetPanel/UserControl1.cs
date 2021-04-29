@@ -174,6 +174,7 @@ namespace SS
         public void setID(int id)
         {
             drawingPanel.setID(id);
+            Invalidate();
         }
 
        
@@ -609,10 +610,7 @@ namespace SS
                 {
                     _selectedCol = x + _firstColumn;
                     _selectedRow = y + _firstRow;
-                    if (_ssp.SelectionChanged != null)
-                    {
-                        _ssp.SelectionChanged(_ssp);
-                    }
+                    _ssp.SelectionChanged?.Invoke(_ssp);
                 }
                 Invalidate();
             }

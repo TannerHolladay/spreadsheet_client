@@ -88,7 +88,6 @@ namespace SpreadSheetGUI
             spreadsheetPanel.SelectionChanged += CellSelectionChange;
             
             _clientController.SendSpreadsheetRequest(Text);
-            CellSelectionChange(spreadsheetPanel);
         }
 
         /// <summary>
@@ -143,11 +142,7 @@ namespace SpreadSheetGUI
                             UpdateCell(cell);
                         }
 
-                        spreadsheetPanel.GetSelection(out _col, out _row);
-                        if (spreadsheetPanel.GetValue(_col, _row, out var value))
-                            BoxValue.Text = value;
-                        else
-                            BoxValue.Clear();
+                        CellSelectionChange(spreadsheetPanel);
                     }
                     catch (Exception exception)
                     {

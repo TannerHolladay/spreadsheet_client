@@ -93,11 +93,14 @@ namespace SpreadSheetGUI
                     {
                         SpreadsheetList.Items.Add(sheet);
                     }
+                    SpreadsheetList.Focus();
+                    SpreadsheetList.SelectedIndex = 0;
                 }
                 else
                 {
                     SpreadsheetList.Enabled = false;
                     SpreadsheetList.Items.Add("No spreadsheets have been created. Please create a new one.");
+                    SpreadsheetName.Focus();
                 }
             }));
         }
@@ -159,6 +162,7 @@ namespace SpreadSheetGUI
         {
             if (_clientController.IsConnected)
                 Join.Enabled = !string.IsNullOrWhiteSpace(SpreadsheetName.Text);
+            AcceptButton = Join;
         }
 
         /// <summary>
@@ -171,6 +175,7 @@ namespace SpreadSheetGUI
             ButtonConnect.Enabled = !string.IsNullOrWhiteSpace(Username.Text) &&
                                     !string.IsNullOrWhiteSpace(IpAddress.Text) &&
                                     (Username.Text != _currentName || IpAddress.Text != _currentIP);
+            AcceptButton = ButtonConnect;
         }
     }
 }

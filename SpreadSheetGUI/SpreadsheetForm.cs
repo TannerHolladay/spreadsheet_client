@@ -132,7 +132,10 @@ namespace SpreadSheetGUI
                         var updated = _spreadsheet.SetContentsOfCell(c.GetCellName(), c.GetContents());
                         foreach (string cell in updated) UpdateCell(cell);
 
-                        CellSelectionChange(spreadsheetPanel);
+                        if (c.GetCellName() == _selection)
+                        {
+                            CellSelectionChange(spreadsheetPanel);
+                        }
                     }
                     catch (Exception exception)
                     {

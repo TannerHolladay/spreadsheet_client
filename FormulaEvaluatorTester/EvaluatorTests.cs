@@ -1,7 +1,7 @@
-using FormulaEvaluator;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using FormulaEvaluator;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FormulaEvaluatorTester
 {
@@ -138,6 +138,5 @@ namespace FormulaEvaluatorTester
             Assert.AreEqual(12, Evaluator.Evaluate("12", SampleEvaluator));
             Assert.AreEqual(20, Evaluator.Evaluate("20", SampleEvaluator));
         }
-
     }
 }

@@ -1,13 +1,8 @@
 ﻿// Written by Tanner Holladay, Noah Carlson, Abbey Nelson, Sergio Remigio, Travis Schnider, Jimmy Glasscock for CS 3505 on April 28, 2021
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.Xml;
 using Control;
 using SpreadsheetUtilities;
 using SS;
@@ -17,48 +12,26 @@ namespace SpreadSheetGUI
 {
     public partial class SpreadsheetForm : Form
     {
-        // Name of the file to save recent saves to.
-        private const string RecentSaveFile = "RecentSaves.xml";
-
-
-        private static HelpBox _helpBox;
-        private static List<string> _recentSaves;
-
-
-        private Spreadsheet _spreadsheet;
-        private string _selection;
-        private int _col;
-        private int _row;
-        private string _currentFile;
-
-        private Controller _clientController;
-
-        /// <summary>
-        /// Current save file client is downloading to
-        /// </summary>
-        private string CurrentFile
+        // Enum Types for the different warning choices
+        public enum WarningType
         {
-            get => _currentFile;
-            set => SetCurrentFile(value);
+            Error,
+            Question,
+            Warning
         }
 
-        /// <summary>
-        /// Valid if the value is any letter A-Z followed by a number 1-99
-        /// </summary>
-        /// <param name="name">Name of the value</param>
-        /// <returns>True if the value is valid</returns>
-        private static bool IsValid(string name) => Regex.IsMatch(name, @"^[A-Z][1-9][0-9]?$");
+        private static HelpBox _helpBox;
+
+        private readonly Controller _clientController;
+
+        private readonly Spreadsheet _spreadsheet;
+        private int _col;
+        private int _row;
+        private string _selection;
 
         /// <summary>
-        /// Converts inputs to uppercase so both lower and upper can be valid variables.
-        /// </summary>
-        /// <param name="name">Value to be normalized</param>
-        /// <returns>The uppercase value</returns>
-        private static string Normalize(string name) => name.ToUpper();
-
-        /// <summary>
-        /// Spreadsheet form that allows you to enter input. You can enter formulas by
-        /// using "=" before the formula ex. (=2+A1)
+        ///     Spreadsheet form that allows you to enter input. You can enter formulas by
+        ///     using "=" before the formula ex. (=2+A1)
         /// </summary>
         public SpreadsheetForm(Controller controller, string spreadsheetName)
         {
@@ -68,10 +41,30 @@ namespace SpreadSheetGUI
 
             _helpBox = new HelpBox();
             _clientController = controller;
-            
+
             AcceptButton = ButtonUpdate;
             LabelError.Visible = false;
             HandleCreated += OnShown;
+        }
+
+        /// <summary>
+        ///     Valid if the value is any letter A-Z followed by a number 1-99
+        /// </summary>
+        /// <param name="name">Name of the value</param>
+        /// <returns>True if the value is valid</returns>
+        private static bool IsValid(string name)
+        {
+            return Regex.IsMatch(name, @"^[A-Z][1-9][0-9]?$");
+        }
+
+        /// <summary>
+        ///     Converts inputs to uppercase so both lower and upper can be valid variables.
+        /// </summary>
+        /// <param name="name">Value to be normalized</param>
+        /// <returns>The uppercase value</returns>
+        private static string Normalize(string name)
+        {
+            return name.ToUpper();
         }
 
         // Method invoker requires the form to be loaded, so it subscribes all events and then sends the spreadsheet name to the server
@@ -85,13 +78,13 @@ namespace SpreadSheetGUI
             _clientController.RequestError += OnRequestError;
             _clientController.ClientDisconnected += OnClientDisconnect;
             _clientController.SelectCell += OnNewCellSelection;
-            spreadsheetPanel.SelectionChanged += CellSelectionChange;
-            
+            spreadsheetPanel.SelectionChanged += SendSelectedUpdate;
+
             _clientController.SendSpreadsheetRequest(Text);
         }
 
         /// <summary>
-        /// Client Disconnect Listener
+        ///     Client Disconnect Listener
         /// </summary>
         /// <param name="d">disconnected Json object</param>
         private void OnClientDisconnect(Disconnected d)
@@ -99,34 +92,34 @@ namespace SpreadSheetGUI
             Invoke(new MethodInvoker(
                 () =>
                 {
-                    LabelError.Text = "User " + d.getUserID() + " disconnected";
+                    LabelError.Text = "User " + d.GetUserID() + " disconnected";
                     LabelError.Visible = true;
                 }));
         }
 
         /// <summary>
-        /// ID received listener
+        ///     ID received listener
         /// </summary>
         /// <param name="id">id of the client</param>
-        public void OnIDReceived(int id)
+        private void OnIDReceived(int id)
         {
-            spreadsheetPanel.setID(id);
+            spreadsheetPanel.SetID(id);
         }
 
         /// <summary>
-        /// Updates current online selections or adds a new one if not found
+        ///     Updates current online selections or adds a new one if not found
         /// </summary>
         /// <param name="selected">CellSelected Json object</param>
         private void OnNewCellSelection(CellSelected selected)
         {
-            var col = Regex.Match(selected.getCellName(), @"^[A-Z]").Value[0] - 'A';
-            var row = int.Parse(Regex.Match(selected.getCellName(), @"\d*$").Value);
+            int col = Regex.Match(selected.GetCellName(), @"^[A-Z]").Value[0] - 'A';
+            int row = int.Parse(Regex.Match(selected.GetCellName(), @"\d*$").Value);
 
-            spreadsheetPanel.UpdateOnlineSelection(col, row - 1, selected.getClientID(), selected.getClientName());
+            spreadsheetPanel.UpdateOnlineSelection(col, row - 1, selected.GetClientID(), selected.GetClientName());
         }
 
         /// <summary>
-        /// Online clients cell edit listener
+        ///     Online clients cell edit listener
         /// </summary>
         /// <param name="c">CellUpdated Json object</param>
         private void OnlineCellEdited(CellUpdated c)
@@ -136,11 +129,8 @@ namespace SpreadSheetGUI
                 {
                     try
                     {
-                        var updated = _spreadsheet.SetContentsOfCell(c.getCellName(), c.getContents());
-                        foreach (string cell in updated)
-                        {
-                            UpdateCell(cell);
-                        }
+                        var updated = _spreadsheet.SetContentsOfCell(c.GetCellName(), c.GetContents());
+                        foreach (string cell in updated) UpdateCell(cell);
 
                         CellSelectionChange(spreadsheetPanel);
                     }
@@ -154,50 +144,26 @@ namespace SpreadSheetGUI
         }
 
         /// <summary>
-        /// Server Shutdown listener: Displays a warning
+        ///     Server Shutdown listener: Displays a warning
         /// </summary>
         /// <param name="error"></param>
         private void OnServerShutdown(ServerShutdownError error)
         {
-            Warning(error.getMessage(), "Server Shutdown", WarningType.Error);
+            Warning(error.GetMessage(), "Server Shutdown", WarningType.Error);
             Close();
         }
 
         /// <summary>
-        /// Request Error listener: Displays and warning
+        ///     Request Error listener: Displays and warning
         /// </summary>
         /// <param name="error"></param>
-        private void OnRequestError(RequestError error)
+        private static void OnRequestError(RequestError error)
         {
-            Warning(error.getMessage() + "\nCell: " + error.getCellName(), "Invalid Request", WarningType.Error);
+            Warning(error.GetMessage() + "\nCell: " + error.GetCellName(), "Invalid Request", WarningType.Error);
         }
 
         /// <summary>
-        /// Gets the current spreadsheet and provides a dialog to save it
-        /// </summary>
-        private void SaveSpreadSheetAs()
-        {
-            if (!_spreadsheet.Changed) return;
-            if (CurrentFile != null)
-            {
-                SaveSpreadsheet(CurrentFile);
-            }
-            else
-            {
-                SaveFileDialog.ShowDialog();
-            }
-        }
-
-        // Enum Types for the different warning choices
-        public enum WarningType
-        {
-            Error,
-            Question,
-            Warning
-        }
-
-        /// <summary>
-        /// Helper method to make it easier to send a popup Dialog
+        ///     Helper method to make it easier to send a popup Dialog
         /// </summary>
         /// <param name="message">Main content of the popup</param>
         /// <param name="title">The title at the top of the dialog</param>
@@ -236,7 +202,7 @@ namespace SpreadSheetGUI
         }
 
         /// <summary>
-        /// Updates the cellValue of Cell
+        ///     Updates the cellValue of Cell
         /// </summary>
         /// <param name="cell">Name of cell</param>
         private void UpdateCell(string cell)
@@ -248,39 +214,19 @@ namespace SpreadSheetGUI
 
 
         /// <summary>
-        /// Saves a spreadsheet selected from a file selection dialog
-        /// </summary>
-        /// <param name="filename">Name of the file to be saved to</param>
-        private bool SaveSpreadsheet(string filename)
-        {
-            try
-            {
-                CurrentFile = filename;
-                _spreadsheet.Save(CurrentFile);
-                return false;
-            }
-            catch (Exception error)
-            {
-                Warning(error.Message, "File Save Error!", WarningType.Error);
-                return true;
-            }
-        }
-
-
-        /// <summary>
-        /// Updates the selected cell on the spreadsheet
+        ///     Updates the selected cell on the spreadsheet
         /// </summary>
         private void EditSelectedCell()
         {
-            EditCell edit = new EditCell();
-            edit.setCellName(_selection);
-            edit.setContents(BoxContents.Text);
+            var edit = new EditCell();
+            edit.SetCellName(_selection);
+            edit.SetContents(BoxContents.Text);
 
             _clientController.SendUpdatesToServer(edit);
         }
 
         /// <summary>
-        /// Loads information from the selected cell when changed.
+        ///     Loads information from the selected cell when changed.
         /// </summary>
         /// <param name="ssp"></param>
         private void CellSelectionChange(SpreadsheetPanel ssp)
@@ -288,7 +234,7 @@ namespace SpreadSheetGUI
             BoxContents.Focus();
             LabelError.Visible = false;
             ssp.GetSelection(out _col, out _row);
-            if (ssp.GetValue(_col, _row, out var value))
+            if (ssp.GetValue(_col, _row, out string value))
                 BoxValue.Text = value;
             else
                 BoxValue.Clear();
@@ -299,7 +245,7 @@ namespace SpreadSheetGUI
 
             try
             {
-                var contents = _spreadsheet.GetCellContents(_selection);
+                object contents = _spreadsheet.GetCellContents(_selection);
                 if (contents is Formula) contents = $"={contents}";
                 BoxContents.Text = contents.ToString();
             }
@@ -307,12 +253,16 @@ namespace SpreadSheetGUI
             {
                 LabelError.Visible = true;
                 LabelError.Text = e.Message;
-                return;
             }
+        }
+
+        private void SendSelectedUpdate(SpreadsheetPanel ssp)
+        {
+            CellSelectionChange(ssp);
 
             // This should send the update to the server (do we need to do this in the try block?)
-            SelectCell selected = new SelectCell();
-            selected.setCellName(_selection);
+            var selected = new SelectCell();
+            selected.SetCellName(_selection);
 
             // Tell the server that this client selected a new cell.
             // Client ID not needed prior to selecting a cell (not mentioned in protocol document) < - Double check this
@@ -322,52 +272,7 @@ namespace SpreadSheetGUI
 
 
         /// <summary>
-        /// Sets the current file of the program. If set, then the program will save
-        /// to this program.
-        /// </summary>
-        /// <param name="value"></param>
-        private void SetCurrentFile(string value)
-        {
-            _currentFile = value;
-
-            ButtonSave.Enabled = true;
-        }
-
-        #region Controller Events
-
-        private void ButtonUpdate_Click(object sender, EventArgs e) =>
-            EditSelectedCell(); // Event thrown selecting the update button to update the selected cell
-
-        private void LoadToolStripMenuItem_Click(object sender, EventArgs e) =>
-            OpenFileDialog.ShowDialog(); // Event thrown from clicking on the load menu item in File
-
-        private void SaveToolStripMenuItem_Click(object sender, EventArgs e) =>
-            SaveFileDialog.ShowDialog(); // Event thrown from clicking on the save menu item in File
-
-        private void SaveFileDialog_FileOk(object sender, CancelEventArgs e) =>
-            e.Cancel = SaveSpreadsheet(SaveFileDialog.FileName); // Event thrown when choosing a file to save to
-
-        private void HelpToolStripMenuItem_Click(object sender, EventArgs e) =>
-            _helpBox.ShowDialog(); // Event thrown when selecting the help button on the tool strip
-
-        private void CloseToolStripMenuItem_Click(object sender, EventArgs e) =>
-            Close(); // Event thrown when choosing the close button in File
-
-        private void ButtonSave_Click(object sender, EventArgs e) =>
-            SaveSpreadSheetAs(); // When the save button is clicked, saves to the last saved file
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) // Save spreadsheet using CTRL+S
-        {
-            if (keyData != (Keys.Control | Keys.S)) return false;
-            SaveSpreadSheetAs();
-            return true;
-        }
-
-        #endregion
-
-
-        /// <summary>
-        /// Undo Button Click listener: Sends Undo message to server
+        ///     Undo Button Click listener: Sends Undo message to server
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -377,15 +282,41 @@ namespace SpreadSheetGUI
         }
 
         /// <summary>
-        /// Revert Button Click listener: Sends revert message to server
+        ///     Revert Button Click listener: Sends revert message to server
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void RevertButton_Click(object sender, EventArgs e)
         {
-            RevertCell revert = new RevertCell();
-            revert.setCellName(_selection);
+            var revert = new RevertCell();
+            revert.SetCellName(_selection);
             _clientController.SendUpdatesToServer(revert);
         }
+
+        #region Controller Events
+
+        private void ButtonUpdate_Click(object sender, EventArgs e)
+        {
+            EditSelectedCell(); // Event thrown selecting the update button to update the selected cell
+        }
+
+        private void LoadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog.ShowDialog(); // Event thrown from clicking on the load menu item in File
+        }
+
+        private void HelpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _helpBox.ShowDialog(); // Event thrown when selecting the help button on the tool strip
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) // Save spreadsheet using CTRL+S
+        {
+            if (keyData != (Keys.Control | Keys.Z)) return false;
+            UndoButton.Select();
+            return true;
+        }
+
+        #endregion
     }
 }

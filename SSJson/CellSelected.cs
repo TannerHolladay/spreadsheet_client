@@ -13,27 +13,27 @@ namespace SSJson
     public class CellSelected
     {
         [JsonProperty(PropertyName = "cellName")]
-        private string cellName;
+        private string _cellName;
 
         [JsonProperty(PropertyName = "selector")]
-        private int clientID;
+        private int _clientID;
 
         [JsonProperty(PropertyName = "selectorName")]
-        private string clientName;
+        private string _clientName;
 
-        public string getCellName()
+        public string GetCellName()
         {
-            return cellName;
+            return _cellName;
         }
 
-        public int getClientID()
+        public int GetClientID()
         {
-            return clientID;
+            return _clientID;
         }
 
-        public string getClientName()
+        public string GetClientName()
         {
-            return clientName;
+            return _clientName;
         }
 
 

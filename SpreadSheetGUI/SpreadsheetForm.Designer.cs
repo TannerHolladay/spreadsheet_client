@@ -40,16 +40,10 @@ namespace SpreadSheetGUI
             this.SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LoadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ButtonSave = new System.Windows.Forms.ToolStripMenuItem();
-            this.ButtonSaveAs = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.RecentItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ItemAutoLoad = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.spreadsheetPanel = new SS.SpreadsheetPanel();
@@ -64,7 +58,7 @@ namespace SpreadSheetGUI
             // ButtonUpdate
             // 
             this.ButtonUpdate.Location = new System.Drawing.Point(211, 25);
-            this.ButtonUpdate.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ButtonUpdate.Margin = new System.Windows.Forms.Padding(2);
             this.ButtonUpdate.Name = "ButtonUpdate";
             this.ButtonUpdate.Size = new System.Drawing.Size(87, 28);
             this.ButtonUpdate.TabIndex = 1;
@@ -76,7 +70,7 @@ namespace SpreadSheetGUI
             // 
             this.BoxContents.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
             this.BoxContents.Location = new System.Drawing.Point(9, 25);
-            this.BoxContents.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.BoxContents.Margin = new System.Windows.Forms.Padding(2);
             this.BoxContents.Name = "BoxContents";
             this.BoxContents.Size = new System.Drawing.Size(198, 29);
             this.BoxContents.TabIndex = 2;
@@ -86,7 +80,7 @@ namespace SpreadSheetGUI
             this.BoxValue.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.BoxValue.Cursor = System.Windows.Forms.Cursors.Default;
             this.BoxValue.Location = new System.Drawing.Point(144, 550);
-            this.BoxValue.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.BoxValue.Margin = new System.Windows.Forms.Padding(2);
             this.BoxValue.Name = "BoxValue";
             this.BoxValue.ReadOnly = true;
             this.BoxValue.Size = new System.Drawing.Size(187, 20);
@@ -124,7 +118,10 @@ namespace SpreadSheetGUI
             // ContextMenuStrip1
             // 
             this.ContextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ContextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.SaveToolStripMenuItem, this.LoadToolStripMenuItem});
+            this.ContextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
+            {
+                this.SaveToolStripMenuItem, this.LoadToolStripMenuItem
+            });
             this.ContextMenuStrip1.Name = "contextMenuStrip1";
             this.ContextMenuStrip1.Size = new System.Drawing.Size(101, 48);
             // 
@@ -143,7 +140,10 @@ namespace SpreadSheetGUI
             // MenuStrip1
             // 
             this.MenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.MenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.fileToolStripMenuItem, this.optionsToolStripMenuItem, this.helpToolStripMenuItem});
+            this.MenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
+            {
+                this.helpToolStripMenuItem
+            });
             this.MenuStrip1.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip1.Name = "MenuStrip1";
             this.MenuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
@@ -151,27 +151,17 @@ namespace SpreadSheetGUI
             this.MenuStrip1.TabIndex = 6;
             this.MenuStrip1.Text = "menuStrip1";
             // 
-            // fileToolStripMenuItem
+            // helpToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.ButtonSave, this.ButtonSaveAs, this.closeToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "Help";
+            this.helpToolStripMenuItem.Click += new System.EventHandler(this.HelpToolStripMenuItem_Click);
             // 
-            // ButtonSave
+            // newToolStripMenuItem
             // 
-            this.ButtonSave.Enabled = false;
-            this.ButtonSave.Name = "ButtonSave";
-            this.ButtonSave.Size = new System.Drawing.Size(136, 22);
-            this.ButtonSave.Text = "Save";
-            this.ButtonSave.Click += new System.EventHandler(this.ButtonSave_Click);
-            // 
-            // ButtonSaveAs
-            // 
-            this.ButtonSaveAs.Name = "ButtonSaveAs";
-            this.ButtonSaveAs.Size = new System.Drawing.Size(136, 22);
-            this.ButtonSaveAs.Text = "Save As...";
-            this.ButtonSaveAs.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
+            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
             // 
             // loadToolStripMenuItem1
             // 
@@ -186,39 +176,17 @@ namespace SpreadSheetGUI
             this.RecentItem.Size = new System.Drawing.Size(136, 22);
             this.RecentItem.Text = "Recent Files";
             // 
-            // closeToolStripMenuItem
-            // 
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.closeToolStripMenuItem.Text = "Close";
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
-            // 
-            // optionsToolStripMenuItem
-            // 
-            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.ItemAutoLoad});
-            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-            this.optionsToolStripMenuItem.Text = "Options";
-            // 
-            // helpToolStripMenuItem
-            // 
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.helpToolStripMenuItem.Text = "Help";
-            this.helpToolStripMenuItem.Click += new System.EventHandler(this.HelpToolStripMenuItem_Click);
-            // 
             // SaveFileDialog
             // 
             this.SaveFileDialog.DefaultExt = "sprd";
             this.SaveFileDialog.Filter = "Spreadsheet Files|*.sprd|All files|*.*";
             this.SaveFileDialog.Title = "Save Spreadsheet To File";
-            this.SaveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.SaveFileDialog_FileOk);
             // 
             // spreadsheetPanel
             // 
             this.spreadsheetPanel.Anchor = ((System.Windows.Forms.AnchorStyles) ((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.spreadsheetPanel.Location = new System.Drawing.Point(9, 58);
-            this.spreadsheetPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.spreadsheetPanel.Margin = new System.Windows.Forms.Padding(2);
             this.spreadsheetPanel.Name = "spreadsheetPanel";
             this.spreadsheetPanel.Size = new System.Drawing.Size(868, 482);
             this.spreadsheetPanel.TabIndex = 0;
@@ -241,7 +209,7 @@ namespace SpreadSheetGUI
             this.BoxSelected.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.BoxSelected.Cursor = System.Windows.Forms.Cursors.Default;
             this.BoxSelected.Location = new System.Drawing.Point(61, 550);
-            this.BoxSelected.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.BoxSelected.Margin = new System.Windows.Forms.Padding(2);
             this.BoxSelected.Name = "BoxSelected";
             this.BoxSelected.ReadOnly = true;
             this.BoxSelected.Size = new System.Drawing.Size(29, 20);
@@ -252,7 +220,7 @@ namespace SpreadSheetGUI
             // UndoButton
             // 
             this.UndoButton.Location = new System.Drawing.Point(670, 26);
-            this.UndoButton.Margin = new System.Windows.Forms.Padding(1, 1, 1, 1);
+            this.UndoButton.Margin = new System.Windows.Forms.Padding(1);
             this.UndoButton.Name = "UndoButton";
             this.UndoButton.Size = new System.Drawing.Size(72, 24);
             this.UndoButton.TabIndex = 14;
@@ -263,7 +231,7 @@ namespace SpreadSheetGUI
             // RevertButton
             // 
             this.RevertButton.Location = new System.Drawing.Point(775, 26);
-            this.RevertButton.Margin = new System.Windows.Forms.Padding(1, 1, 1, 1);
+            this.RevertButton.Margin = new System.Windows.Forms.Padding(1);
             this.RevertButton.Name = "RevertButton";
             this.RevertButton.Size = new System.Drawing.Size(78, 26);
             this.RevertButton.TabIndex = 15;
@@ -289,7 +257,7 @@ namespace SpreadSheetGUI
             this.Controls.Add(this.spreadsheetPanel);
             this.KeyPreview = true;
             this.MainMenuStrip = this.MenuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MinimumSize = new System.Drawing.Size(471, 225);
             this.Name = "SpreadsheetForm";
             this.ShowIcon = false;
@@ -313,20 +281,14 @@ namespace SpreadSheetGUI
         private System.Windows.Forms.ToolStripMenuItem SaveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem LoadToolStripMenuItem;
         private System.Windows.Forms.MenuStrip MenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem ButtonSaveAs;
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem1;
         private System.Windows.Forms.OpenFileDialog OpenFileDialog;
         private System.Windows.Forms.SaveFileDialog SaveFileDialog;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.Label LabelValue;
         private System.Windows.Forms.TextBox BoxSelected;
         private System.Windows.Forms.ToolStripMenuItem RecentItem;
-        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem ItemAutoLoad;
-        private ToolStripMenuItem ButtonSave;
         private Button UndoButton;
         private Button RevertButton;
     }

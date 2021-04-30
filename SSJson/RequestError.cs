@@ -1,32 +1,29 @@
 ﻿// Written by Tanner Holladay, Noah Carlson, Abbey Nelson, Sergio Remigio, Travis Schnider, Jimmy Glasscock for CS 3505 on April 28, 2021
+
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SSJson
 {
     /// <summary>
-    /// Class for Deserializing a RequestError message to an object
+    ///     Class for Deserializing a RequestError message to an object
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class RequestError
     {
         [JsonProperty(PropertyName = "cellName")]
-        private string cellName;
+        private string _cellName;
 
         [JsonProperty(PropertyName = "message")]
-        private string message;
+        private string _message;
 
-        public string getCellName()
+        public string GetCellName()
         {
-            return cellName;
+            return _cellName;
         }
 
-        public string getMessage()
+        public string GetMessage()
         {
-            return message;
+            return _message;
         }
-
     }
 }

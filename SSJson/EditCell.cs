@@ -1,42 +1,40 @@
 ﻿// Written by Tanner Holladay, Noah Carlson, Abbey Nelson, Sergio Remigio, Travis Schnider, Jimmy Glasscock for CS 3505 on April 28, 2021
+
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SSJson
 
-{    /// <summary>
-     /// Class for Deserializing a Json Edit message to an object
-     /// </summary>
+{
+    /// <summary>
+    ///     Class for Deserializing a Json Edit message to an object
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class EditCell
     {
-        [JsonProperty(PropertyName = "requestType")]
-        private string requestType;
-
         [JsonProperty(PropertyName = "cellName")]
-        private string cellName;
+        private string _cellName;
 
         [JsonProperty(PropertyName = "contents")]
-        private string contents;
+        private string _contents;
+
+        [JsonProperty(PropertyName = "requestType")]
+        private string _requestType;
 
         public EditCell()
         {
-            requestType = "editCell";
-            cellName = "";
-            contents = "";
+            _requestType = "editCell";
+            _cellName = "";
+            _contents = "";
         }
 
-        public void setCellName(string name)
+        public void SetCellName(string name)
         {
-            cellName = name;
+            _cellName = name;
         }
 
-        public void setContents(string value)
+        public void SetContents(string value)
         {
-            contents = value;
+            _contents = value;
         }
-
     }
 }

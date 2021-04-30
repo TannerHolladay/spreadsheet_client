@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -21,27 +20,27 @@ namespace SS
         private readonly DependencyGraph _dependencies;
 
         /// <summary>
-        /// Returns true if the spreadsheet has been changed since last edited, false otherwise.
+        ///     Creates a spreadsheet of infinite cells that can have formulas, numbers, and strings.
+        ///     Formulas will calculate equations using the "=" symbol. Formulas can use other cells in the equation
+        ///     as long as their value returns a number. All cells require one or more letters followed by one or more
+        ///     numbers
+        ///     Version will be set to "default" when using no parameters
         /// </summary>
-        public override bool Changed { get; protected set; }
+        public Spreadsheet() : this(s => true, n => n, "default")
+        {
+        }
 
         /// <summary>
-        /// Creates a spreadsheet of infinite cells that can have formulas, numbers, and strings.
-        /// Formulas will calculate equations using the "=" symbol. Formulas can use other cells in the equation
-        /// as long as their value returns a number. All cells require one or more letters followed by one or more
-        /// numbers
-        /// Version will be set to "default" when using no parameters
-        /// </summary>
-        public Spreadsheet() : this(s => true, n => n, "default") { }
-
-        /// <summary>
-        /// Creates a spreadsheet of infinite cells that can have formulas, numbers, and strings.
-        /// Formulas will calculate equations using the "=" symbol. Formulas can use other cells in the equation
-        /// as long as their value returns a number. All cells require one or more letters followed by one or more
-        /// numbers
+        ///     Creates a spreadsheet of infinite cells that can have formulas, numbers, and strings.
+        ///     Formulas will calculate equations using the "=" symbol. Formulas can use other cells in the equation
+        ///     as long as their value returns a number. All cells require one or more letters followed by one or more
+        ///     numbers
         /// </summary>
         /// <param name="isValid">Method that used to determine if a cell is valid along with the base validity</param>
-        /// <param name="normalize">Method used to convert input cell names to something else. (Likely used to convert to upper or lower)</param>
+        /// <param name="normalize">
+        ///     Method used to convert input cell names to something else. (Likely used to convert to upper or
+        ///     lower)
+        /// </param>
         /// <param name="version">The version to be set for the spreadsheet</param>
         public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version)
             : base(isValid, normalize, version ?? "default")
@@ -52,15 +51,18 @@ namespace SS
         }
 
         /// <summary>
-        /// Creates a spreadsheet of infinite cells that can have formulas, numbers, and strings.
-        /// Formulas will calculate equations using the "=" symbol. Formulas can use other cells in the equation
-        /// as long as their value returns a number. All cells require one or more letters followed by one or more
-        /// numbers
-        /// This will load a previously created spreadsheet.
+        ///     Creates a spreadsheet of infinite cells that can have formulas, numbers, and strings.
+        ///     Formulas will calculate equations using the "=" symbol. Formulas can use other cells in the equation
+        ///     as long as their value returns a number. All cells require one or more letters followed by one or more
+        ///     numbers
+        ///     This will load a previously created spreadsheet.
         /// </summary>
         /// <param name="filename">The file to load the spreadsheet from</param>
         /// <param name="isValid">Method that used to determine if a cell is valid along with the base validity</param>
-        /// <param name="normalize">Method used to convert input cell names to something else. (Likely used to convert to upper or lower)</param>
+        /// <param name="normalize">
+        ///     Method used to convert input cell names to something else. (Likely used to convert to upper or
+        ///     lower)
+        /// </param>
         /// <param name="version">The version to be set for the spreadsheet</param>
         public Spreadsheet(string filename, Func<string, bool> isValid, Func<string, string> normalize, string version)
             : this(isValid, normalize, version)
@@ -81,23 +83,30 @@ namespace SS
                         if (!reader.IsStartElement() || reader.Name != "cell") continue;
                         if (!reader.ReadToDescendant("name"))
                             throw new Exception("Name of cell does not exist");
-                        var name = reader.ReadElementString("name");
+                        string name = reader.ReadElementString("name");
                         if (reader.Name != "contents" && !reader.ReadToNextSibling("contents"))
                             throw new Exception("Cell contents does not exist");
-                        var contents = reader.ReadElementString("contents");
+                        string contents = reader.ReadElementString("contents");
                         SetContentsOfCell(name, contents);
                     }
                 }
             }
             catch (Exception e)
             {
-                throw new SpreadsheetReadWriteException($"Error received when trying to load the Spreadsheet! {e.Message}");
+                throw new SpreadsheetReadWriteException(
+                    $"Error received when trying to load the Spreadsheet! {e.Message}");
             }
+
             Changed = false;
         }
 
         /// <summary>
-        /// Gets the version from the filename specified
+        ///     Returns true if the spreadsheet has been changed since last edited, false otherwise.
+        /// </summary>
+        public override bool Changed { get; protected set; }
+
+        /// <summary>
+        ///     Gets the version from the filename specified
         /// </summary>
         /// <param name="filename">Path of the file to read</param>
         /// <returns>Returns the version of the spreadsheet file</returns>
@@ -116,12 +125,13 @@ namespace SS
             }
             catch (Exception)
             {
-                throw new SpreadsheetReadWriteException("Error received when attempting to read the spreadsheet version!");
+                throw new SpreadsheetReadWriteException(
+                    "Error received when attempting to read the spreadsheet version!");
             }
         }
 
         /// <summary>
-        /// Saves the spreadsheet to a file with the specified filename
+        ///     Saves the spreadsheet to a file with the specified filename
         /// </summary>
         /// <param name="filename">The name of the file</param>
         public override void Save(string filename)
@@ -138,7 +148,7 @@ namespace SS
                     {
                         writer.WriteStartElement("cell");
                         writer.WriteElementString("name", cell.Key);
-                        var contents = cell.Value.Contents;
+                        object contents = cell.Value.Contents;
                         writer.WriteElementString("contents", $"{(contents is Formula ? "=" : "")}{contents}");
                         writer.WriteEndElement();
                     }
@@ -147,6 +157,7 @@ namespace SS
                     writer.WriteEndElement();
                     writer.WriteEndDocument();
                 }
+
                 Changed = false;
             }
             catch (Exception)
@@ -156,7 +167,7 @@ namespace SS
         }
 
         /// <summary>
-        /// Gets the calculated value of the cell with the given name
+        ///     Gets the calculated value of the cell with the given name
         /// </summary>
         /// <param name="name">The name of the cell</param>
         /// <returns>The calculated result</returns>
@@ -167,7 +178,7 @@ namespace SS
         }
 
         /// <summary>
-        /// Returns an IEnumerable of the names of cells that contain contents
+        ///     Returns an IEnumerable of the names of cells that contain contents
         /// </summary>
         /// <returns>The name of cells with contents</returns>
         public override IEnumerable<string> GetNamesOfAllNonemptyCells()
@@ -176,7 +187,7 @@ namespace SS
         }
 
         /// <summary>
-        /// Returns the raw contents of a cell
+        ///     Returns the raw contents of a cell
         /// </summary>
         /// <param name="name">The name of the cell to get the contents from</param>
         /// <returns>The object contained in the cell</returns>
@@ -188,8 +199,8 @@ namespace SS
         }
 
         /// <summary>
-        /// Sets the contents of cell. Contents will be either a formula, number, or just text.
-        /// Formulas can be defined using an equal("=") symbol before the equation.
+        ///     Sets the contents of cell. Contents will be either a formula, number, or just text.
+        ///     Formulas can be defined using an equal("=") symbol before the equation.
         /// </summary>
         /// <param name="name">The name of the cell to change the contents</param>
         /// <param name="content">The contents to be inserted into the cell</param>
@@ -201,19 +212,13 @@ namespace SS
 
             IList<string> cells;
             if (content != "" && content[0] == '=')
-            {
                 cells = SetCellContents(name, new Formula(content.Substring(1), Normalize, IsValid));
-            }
-            else if (double.TryParse(content, out var number))
-            {
+            else if (double.TryParse(content, out double number))
                 cells = SetCellContents(name, number);
-            }
             else
-            {
                 cells = SetCellContents(name, content);
-            }
 
-            foreach (var cell in cells)
+            foreach (string cell in cells)
             {
                 if (!_cells.TryGetValue(cell, out var value)) continue;
                 // This updates all cells that depend on the updated cell. Throws an error if cell in equation is not a number
@@ -229,7 +234,7 @@ namespace SS
         }
 
         /// <summary>
-        /// Sets the contents of a cell to be a number
+        ///     Sets the contents of a cell to be a number
         /// </summary>
         /// <param name="name">Name of the cell</param>
         /// <param name="number">Number to be passed into the contents</param>
@@ -242,7 +247,7 @@ namespace SS
         }
 
         /// <summary>
-        /// Sets the contents of a cell to be some text
+        ///     Sets the contents of a cell to be some text
         /// </summary>
         /// <param name="name">Name of the cell</param>
         /// <param name="text">Text to be passed into the contents</param>
@@ -258,14 +263,13 @@ namespace SS
         }
 
         /// <summary>
-        /// Sets the contents of a cell to a formula object
+        ///     Sets the contents of a cell to a formula object
         /// </summary>
         /// <param name="name">Name of the cell</param>
         /// <param name="formula">Formula to be passed into the contents</param>
         /// <returns>Returns all the direct and indirect cells that depend on this cell</returns>
         protected override IList<string> SetCellContents(string name, Formula formula)
         {
-
             _dependencies.ReplaceDependees(name, formula.GetVariables());
             try
             {
@@ -276,13 +280,14 @@ namespace SS
             catch (CircularException)
             {
                 // Reverts ReplaceDependees since it's the only thing that changes before the error is thrown 
-                _dependencies.ReplaceDependees(name, GetCellContents(name) is Formula prevFormula ? prevFormula.GetVariables() : null);
+                _dependencies.ReplaceDependees(name,
+                    GetCellContents(name) is Formula prevFormula ? prevFormula.GetVariables() : null);
                 throw;
             }
         }
 
         /// <summary>
-        /// Returns all the cells that directly depends on the cell
+        ///     Returns all the cells that directly depends on the cell
         /// </summary>
         /// <param name="name">The cell to search for dependents</param>
         /// <returns></returns>
@@ -294,18 +299,8 @@ namespace SS
         private class Cell
         {
             /// <summary>
-            /// Returns the calculate result of the contents in the cell.
-            /// </summary>
-            public object Value { get; private set; }
-
-            /// <summary>
-            /// Returns the raw contents of the Cell
-            /// </summary>
-            public object Contents { get; }
-
-            /// <summary>
-            /// Used to store contents and value of a cell.
-            /// Value can be updated when calling the evaluate method.
+            ///     Used to store contents and value of a cell.
+            ///     Value can be updated when calling the evaluate method.
             /// </summary>
             /// <param name="contents">The information stored inside the cell</param>
             public Cell(object contents)
@@ -315,15 +310,22 @@ namespace SS
             }
 
             /// <summary>
-            /// Calculates and changes the value of the cell if the contents are a formula
+            ///     Returns the calculate result of the contents in the cell.
+            /// </summary>
+            public object Value { get; private set; }
+
+            /// <summary>
+            ///     Returns the raw contents of the Cell
+            /// </summary>
+            public object Contents { get; }
+
+            /// <summary>
+            ///     Calculates and changes the value of the cell if the contents are a formula
             /// </summary>
             /// <param name="lookup">The method used to search for another cell's value</param>
             public void Evaluate(Func<string, double> lookup)
             {
-                if (Contents is Formula formula)
-                {
-                    Value = formula.Evaluate(lookup);
-                }
+                if (Contents is Formula formula) Value = formula.Evaluate(lookup);
             }
         }
     }

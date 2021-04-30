@@ -1,11 +1,11 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SpreadsheetUtilities;
-using SS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SpreadsheetUtilities;
+using SS;
 
 namespace SpreadsheetTests
 {
@@ -20,7 +20,7 @@ namespace SpreadsheetTests
                 writer.WriteStartElement("spreadsheet");
                 writer.WriteAttributeString("version", version);
 
-                foreach (var (key, contents) in cells)
+                foreach ((string key, string contents) in cells)
                 {
                     writer.WriteStartElement("cell");
                     writer.WriteElementString("name", key);
@@ -333,10 +333,18 @@ namespace SpreadsheetTests
         {
             CreateTestSave("TestSavedXml.xml", "default", new Dictionary<string, string>
             {
-                {"a1", "test"},
-                {"a2", "12"},
-                {"a3", "=2+a2"},
-                {"a4", "=a3"}
+                {
+                    "a1", "test"
+                },
+                {
+                    "a2", "12"
+                },
+                {
+                    "a3", "=2+a2"
+                },
+                {
+                    "a4", "=a3"
+                }
             });
             AbstractSpreadsheet spreadsheet = new Spreadsheet("TestSavedXml.xml", IsValid, s => s, "default");
             Assert.AreEqual("test", spreadsheet.GetCellValue("a1"));
@@ -350,7 +358,9 @@ namespace SpreadsheetTests
         {
             CreateTestSave("TestVersion.xml", "default", new Dictionary<string, string>
             {
-                {"a1", "test"}
+                {
+                    "a1", "test"
+                }
             });
             AbstractSpreadsheet spreadsheet = new Spreadsheet("TestVersion.xml", IsValid, s => s, "default");
             Assert.AreEqual("default", spreadsheet.Version);
@@ -361,7 +371,9 @@ namespace SpreadsheetTests
         {
             CreateTestSave("SavedVersion.xml", "versionTest", new Dictionary<string, string>
             {
-                {"a1", "test"}
+                {
+                    "a1", "test"
+                }
             });
             AbstractSpreadsheet spreadsheet = new Spreadsheet();
             Assert.AreEqual("versionTest", spreadsheet.GetSavedVersion("SavedVersion.xml"));
@@ -371,7 +383,10 @@ namespace SpreadsheetTests
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
         public void TestSavedVersionError()
         {
-            var settings = new XmlWriterSettings { Indent = true };
+            var settings = new XmlWriterSettings
+            {
+                Indent = true
+            };
             using (var writer = XmlWriter.Create("versionError.xml", settings))
             {
                 writer.WriteStartDocument();
@@ -379,6 +394,7 @@ namespace SpreadsheetTests
                 writer.WriteEndElement();
                 writer.WriteEndDocument();
             }
+
             AbstractSpreadsheet spreadsheet = new Spreadsheet();
             spreadsheet.GetSavedVersion("versionError.xml");
         }
@@ -397,7 +413,9 @@ namespace SpreadsheetTests
         {
             CreateTestSave("InvalidVersion.xml", "default", new Dictionary<string, string>
             {
-                {"a1", "test"}
+                {
+                    "a1", "test"
+                }
             });
             AbstractSpreadsheet spreadsheet = new Spreadsheet("InvalidVersion.xml", IsValid, s => s, "1.0");
         }
@@ -408,7 +426,9 @@ namespace SpreadsheetTests
         {
             CreateTestSave("InvalidName.xml", "default", new Dictionary<string, string>
             {
-                {"10", "test"}
+                {
+                    "10", "test"
+                }
             });
             AbstractSpreadsheet spreadsheet = new Spreadsheet("InvalidName.xml", IsValid, s => s, "default");
         }
@@ -419,8 +439,12 @@ namespace SpreadsheetTests
         {
             CreateTestSave("SaveCircular.xml", "default", new Dictionary<string, string>
             {
-                {"a1", "=b1"},
-                {"b1", "=a1"}
+                {
+                    "a1", "=b1"
+                },
+                {
+                    "b1", "=a1"
+                }
             });
             AbstractSpreadsheet spreadsheet = new Spreadsheet("SaveCircular.xml", IsValid, s => s, "default");
         }
@@ -431,7 +455,9 @@ namespace SpreadsheetTests
         {
             CreateTestSave("InvalidContent.xml", "default", new Dictionary<string, string>
             {
-                {"a1", "=2a"},
+                {
+                    "a1", "=2a"
+                }
             });
             AbstractSpreadsheet spreadsheet = new Spreadsheet("InvalidContent.xml", IsValid, s => s, "default");
         }
@@ -528,6 +554,5 @@ namespace SpreadsheetTests
             Assert.AreEqual("test", spreadsheet2.GetCellValue("c1"));
             Assert.AreEqual(14.0, spreadsheet2.GetCellValue("d1"));
         }
-
     }
 }

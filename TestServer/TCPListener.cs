@@ -1,11 +1,13 @@
 ﻿// Written by Tanner Holladay, Noah Carlson, Abbey Nelson, Sergio Remigio, Travis Schnider, Jimmy Glasscock for CS 3505 on April 28, 2021
+
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace Server
 {
-    class TCPListener
+    internal class TCPListener
     {
         public static void Main()
         {
@@ -14,7 +16,7 @@ namespace Server
             {
                 const int port = 1100;
                 // Local host ip address
-                IPAddress serverAddress = IPAddress.Parse("127.0.0.1");
+                var serverAddress = IPAddress.Parse("127.0.0.1");
                 server = new TcpListener(serverAddress, port);
                 server.Start();
 
@@ -24,10 +26,10 @@ namespace Server
                 while (true)
                 {
                     Console.WriteLine("Waiting for a connection... ");
-                    TcpClient client = server.AcceptTcpClient();
+                    var client = server.AcceptTcpClient();
                     Console.WriteLine("Connected");
-                    
-                    NetworkStream stream = client.GetStream();
+
+                    var stream = client.GetStream();
 
                     int i;
 
@@ -35,7 +37,7 @@ namespace Server
                     while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
                         // Translate read bytes into ASCII
-                        string data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                        string data = Encoding.ASCII.GetString(bytes, 0, i);
                         Console.WriteLine("Received: {0}", data);
 
 
@@ -54,13 +56,13 @@ namespace Server
                         }
 
                         //Encoding message into bytes
-                        byte[] response = System.Text.Encoding.ASCII.GetBytes(data);
-
+                        byte[] response = Encoding.ASCII.GetBytes(data);
 
 
                         stream.Write(response, 0, response.Length);
                         Console.WriteLine("Sent: {0}", data);
                     }
+
                     // End connection
                     client.Close();
                 }

@@ -231,7 +231,6 @@ namespace SpreadSheetGUI
         /// <param name="ssp"></param>
         private void CellSelectionChange(SpreadsheetPanel ssp)
         {
-            BoxContents.Focus();
             LabelError.Visible = false;
             ssp.GetSelection(out _col, out _row);
             if (ssp.GetValue(_col, _row, out string value))
@@ -258,6 +257,7 @@ namespace SpreadSheetGUI
 
         private void SendSelectedUpdate(SpreadsheetPanel ssp)
         {
+            BoxContents.Focus();
             CellSelectionChange(ssp);
 
             // This should send the update to the server (do we need to do this in the try block?)

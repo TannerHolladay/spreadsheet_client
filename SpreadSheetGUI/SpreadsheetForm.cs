@@ -81,6 +81,7 @@ namespace SpreadSheetGUI
             spreadsheetPanel.SelectionChanged += SendSelectedUpdate;
 
             _clientController.SendSpreadsheetRequest(Text);
+            SendSelectedUpdate(spreadsheetPanel);
         }
 
         /// <summary>
@@ -262,6 +263,8 @@ namespace SpreadSheetGUI
         {
             BoxContents.Focus();
             CellSelectionChange(ssp);
+
+            if (_selection == null) return;
 
             // This should send the update to the server (do we need to do this in the try block?)
             var selected = new SelectCell();
